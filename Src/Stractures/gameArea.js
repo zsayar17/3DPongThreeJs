@@ -8,6 +8,8 @@ import { AIController } from '../Controllers/aiController.js';
 import { RegularController } from '../Controllers/regularController.js';
 import * as Camera from '../Core/camera.js';
 
+import * as Utilis from '../Utilis/costumMath.js';
+
 class GameArea
 {
     constructor(stageCount)
@@ -20,10 +22,10 @@ class GameArea
         this.allowedCameras = [];
         this.currentCamera = 0;
 
-        this.createCameras();
         this.createStages(stageCount);
         this.createPitches(stageCount * 2);
         this.bindStages();
+        this.createCameras();
     }
 
     createStages(stageCount)
@@ -32,7 +34,7 @@ class GameArea
 
         for (var i = 0; i < stageCount; i++)
         {
-            this.stages.push(new Stage(new THREE.Vector3(0, 0, beginZ)));
+            this.stages.push(new Stage(new THREE.Vector3(0, 20, beginZ)));
             beginZ -= Constants.distanceBetweenStages;
         }
     }
@@ -40,28 +42,31 @@ class GameArea
     createPitches(pitchCount)
     {
         var controllers = [];
+        var angle = 0;
+        var positions = {x: 0, y: 0};
 
-        var distance = 25;
+        var distance = Math.max(Constants.DefaultPitchDepth, Constants.DefaultPitchWidth) + Constants.DefaultPitchThickness * 5;
+        distance = pitchCount > 2 ? distance / Math.sin(Math.PI * 2 / pitchCount) : distance;
 
-        this.pitches.push(new Pitch(0, new THREE.Vector3(-distance, -25, 0)));
-        this.pitches.push(new Pitch(Math.PI, new THREE.Vector3(distance, -25, 0)));
-        this.pitches.push(new Pitch(Math.PI / 2, new THREE.Vector3(0, -25, distance)));
-        this.pitches.push(new Pitch(Math.PI / 2 * 3, new THREE.Vector3(0, -25, -distance)));
+        for (var i = 0; i < pitchCount; i++)
+        {
+            angle = -i * Math.PI * 2 / pitchCount;
+            positions = Utilis.rotatePoint(-distance, 0, angle);
+            this.pitches.push(new Pitch(-angle, new THREE.Vector3(positions.x, 0, positions.y)));
+        }
 
         controllers.push(new RegularController(this.pitches[0]));
-        controllers.push(new AIController(this.pitches[1]));
-        controllers.push(new AIController(this.pitches[2]));
-        controllers.push(new AIController(this.pitches[3]));
+        for (var i = 1; i < this.pitches.length; i++) controllers.push(new AIController(this.pitches[i]));
 
         for (var i = 0; i < this.pitches.length; i++) this.pitches[i].bindController(controllers[i]);
-
-        for (var i = 0; i < this.pitches.length; i++)
-            this.winnerPitches.push(this.pitches[i]);
+        for (var i = 0; i < this.pitches.length; i++) this.winnerPitches.push(this.pitches[i]);
     }
 
     createCameras(stageCount)
     {
-        this.allowedCameras.push(Camera.createPerspectiveCamera(new THREE.Vector3(0, 50, 0), new THREE.Vector3(0, 0, 0)));
+        var distance = (Math.abs(this.stages[this.stages.length - 1].position.z) + Constants.DefaultPitchWidth + Constants.DefaultPitchThickness)
+                       / Math.cos(Math.PI / 3);
+        this.allowedCameras.push(Camera.createPerspectiveCamera(new THREE.Vector3(0, distance , 0), new THREE.Vector3(0, 0, 0)));
 
         this.currentCamera = 0;
         Camera.setCurrentCameraByİndex(this.allowedCameras[this.currentCamera]);
@@ -72,6 +77,11 @@ class GameArea
         if (this.pitches[pitchIndex].controller != null) this.pitches[pitchIndex].bindController(controller);
     }
 
+    isAnyRegularController()
+    {
+        return this.winnerPitches.some(pitch => pitch.controller.controllerType == Constants.controllerTypes.RegularController);
+    }
+
     setBindedPitches()
     {
         this.situaiton = Constants.InStage;
@@ -79,9 +89,13 @@ class GameArea
         this.allowedCameras.splice(1, this.allowedCameras.length - 1);
         for (var i = 0; i < this.winnerPitches.length; i++)
         {
+            if (!this.isAnyRegularController() && i % 2 == 0)
+            {
+                this.allowedCameras.push(this.winnerPitches[i].controller.allowedCameras[1]);
+            }
+
             if (this.winnerPitches[i].controller.controllerType != Constants.controllerTypes.RegularController) continue;
 
-            console.log(this.winnerPitches[i].controller.allowedCameras.length);
             for (var j = 0; j < this.winnerPitches[i].controller.allowedCameras.length; j++)
                 this.allowedCameras.push(this.winnerPitches[i].controller.allowedCameras[j]);
         }

@@ -5,4 +5,11 @@ function roundToPrecision(value, precision) {
     return Math.round(value * multiplier) / multiplier;
 }
 
-export { roundToPrecision };
+function rotatePoint(x, y, angle) {
+    var newX = x * Math.cos(angle) - y * Math.sin(angle);
+    var newY = x * Math.sin(angle) + y * Math.cos(angle);
+
+    return { x: newX, y: newY };
+}
+
+export { roundToPrecision, rotatePoint };

@@ -7,13 +7,12 @@ class Camera
 {
     constructor(position, target)
     {
-        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        this.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
         this.isDisplayeble = true;
 
         this.camera.position.set(position.x, position.y, position.z);
         if (target != null) this.camera.lookAt(target);
 
-        //Scene.addElementToScene(this.camera);
     }
 
     addObjectToGroup(group)

@@ -9,8 +9,8 @@ const KEYS = 64;
 const KEYA = 128;
 const KEYD = 256;
 
-const PitchRotateSpeed = Math.PI / 180;
-const PitchMoveSpeed = 0.1;
+const PitchRotateSpeed = Math.PI / 90;
+const PitchMoveSpeed = 0.2;
 
 const DefaultPitchWidth = 20;
 const DefaultPitchHeight = 1;
@@ -48,7 +48,7 @@ const ballAccelerationRate = 0.05;
 const ballMaxBounceAngle = Math.PI / 12 * 3;
 const ballMaxBeginAngle = Math.PI / 12 * 4;
 
-const maxScore = 4;
+const maxScore = 3;
 
 const moveUp = 1;
 const moveDown = -1;

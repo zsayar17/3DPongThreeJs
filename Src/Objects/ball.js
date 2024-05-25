@@ -51,7 +51,7 @@ class Ball extends Sphere
 
     bounceToGoal(paddles)
     {
-        this.last_touch.basePitch.score++;
+        this.last_touch.basePitch.setScore(this.last_touch.basePitch.score + 1);
 
         this.setRandomDirection(paddles[Constants.LEFT], paddles[Constants.RIGHT]);
     }

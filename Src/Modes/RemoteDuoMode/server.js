@@ -1,20 +1,8 @@
-import * as THREE from '../../../Requirments/three.module.js';
-
 import * as Scene from '../../Core/scene.js'
 import * as Renderer from '../../Core/renderer.js'
 import * as Event from '../../Core/event.js'
-import * as Camera from '../../Core/camera.js'
 import * as Light from '../../Core/light.js'
-
-import * as Constants from '../../Constants/constants.js'
-
-import { Pitch } from '../../Stractures/pitch.js'
-import { Stage } from '../../Stractures/stage.js'
 import { GameArea } from '../../Stractures/gameArea.js'
-
-import { RegularController } from '../../Controllers/regularController.js'
-import { AIController } from '../../Controllers/aiController.js'
-
 
 var readyToPlayCount = 0;
 var playerCount = 4;
@@ -49,7 +37,6 @@ function setup()
 function update()
 {
     requestAnimationFrame(update);
-
 
     gameArea.movePitchesToAim();
     gameArea.playGame();

@@ -116,6 +116,8 @@ class Pitch
         this.stage = stage;
         this.identityOnStage = identity;
         this.side = side;
+
+        this.floor.setText(this.score.toString());
     }
 
     bindController(controller)
@@ -130,6 +132,7 @@ class Pitch
         this.side = 0;
 
         this.score = 0;
+        this.floor.setText('');
     }
 
     moveToAim()
@@ -165,7 +168,7 @@ class Pitch
         newPosition = this.group.position.clone().add(direction.multiplyScalar(speed));
         this.group.position.copy(newPosition);
 
-        if (newPosition.distanceTo(target) < 0.1)
+        if (newPosition.distanceTo(target) < Constants.PitchMoveSpeed * 2)
         {
             this._isMoved = true;
             this.group.position.copy(target);
@@ -212,6 +215,12 @@ class Pitch
     destroy()
     {
         Scene.removeElementFromScene(this.group);
+    }
+
+    setScore(score)
+    {
+        this.score = score;
+        this.floor.setText(score.toString());
     }
 }
 

@@ -14,9 +14,9 @@ class RegularController extends BaseController
 
     controlPaddle(pitch)
     {
-        if (Event.isKeyPress(Constants.KEYUP))
+        if (Event.isKeyPress(Constants.KEYLEFT))
             return 1;
-        if (Event.isKeyPress(Constants.KEYDOWN))
+        if (Event.isKeyPress(Constants.KEYRIGHT))
             return -1;
     }
 }
