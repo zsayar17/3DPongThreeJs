@@ -1,16 +1,38 @@
-const KEYUP = 1;
-const KEYDOWN = 2;
-const KEYLEFT = 4;
-const KEYRIGHT = 8;
-const KEYSPACE = 16;
+const Keys = {
+    Up: 1,
+    Down: 2,
+    Left: 4,
+    Right: 8,
+    Space: 16,
+    W: 32,
+    S: 64,
+    A: 128,
+    D: 256
+};
 
-const KEYW = 32;
-const KEYS = 64;
-const KEYA = 128;
-const KEYD = 256;
+const PitchEnvironment = {
+    RotateSpeed: Math.PI / 30,
+    MoveSpeed: 0.6,
 
-const PitchRotateSpeed = Math.PI / 90;
-const PitchMoveSpeed = 0.2;
+    DefaultWidth: 20,
+    DefaultHeight: 1,
+    DefaultDepth: 20,
+    DefaultThickness: 1,
+};
+
+const PaddleEnvironment = {
+    WidthRateByPitch: 0.08,
+    HeightRateByPitch: 1,
+    DepthRateByPitch: 0.3,
+    ThicknessRateByPitch: 1,
+
+    MoveSpeed: 0.15,
+
+    EmissiveIntensity: 0.7,
+};
+
+const PitchRotateSpeed = Math.PI / 45;
+const PitchMoveSpeed = 0.45;
 
 const DefaultPitchWidth = 20;
 const DefaultPitchHeight = 1;
@@ -62,7 +84,7 @@ const controllerTypes = {
 };
 
 export {
-    KEYUP, KEYDOWN, KEYLEFT, KEYRIGHT, KEYSPACE, KEYW, KEYS, KEYA, KEYD,
+    Keys,
     PitchRotateSpeed, PitchMoveSpeed,
     DefaultPitchWidth, DefaultPitchHeight, DefaultPitchDepth, DefaultPitchThickness,
     paddleWidtRateByPitch, paddleHeightRateByPitch, paddleDepthRateByPitch, paddleThicknessRateByPitch,

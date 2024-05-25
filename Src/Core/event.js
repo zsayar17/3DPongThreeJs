@@ -8,31 +8,31 @@ function onİnputKeyDown(event)
     switch(event.keyCode)
     {
         case 38:
-            key_state |= Constants.KEYUP;
+            key_state |= Constants.Keys.Up;
             break;
         case 40:
-            key_state |= Constants.KEYDOWN;
+            key_state |= Constants.Keys.Down;
             break;
         case 37:
-            key_state |= Constants.KEYLEFT;
+            key_state |= Constants.Keys.Left;
             break;
         case 39:
-            key_state |= Constants.KEYRIGHT;
+            key_state |= Constants.Keys.Right;
             break;
         case 32:
-            key_state |= Constants.KEYSPACE;
+            key_state |= Constants.Keys.Space;
             break;
         case 87:
-            key_state |= Constants.KEYW;
+            key_state |= Constants.Keys.W;
             break;
         case 83:
-            key_state |= Constants.KEYS;
+            key_state |= Constants.Keys.S;
             break;
         case 65:
-            key_state |= Constants.KEYA;
+            key_state |= Constants.Keys.A;
             break;
         case 68:
-            key_state |= Constants.KEYD;
+            key_state |= Constants.Keys.D;
             break;
     }
 }
@@ -42,31 +42,31 @@ function onInputKeyUp(event)
     switch(event.keyCode)
     {
         case 38:
-            key_state &= ~Constants.KEYUP;
+            key_state &= ~Constants.Keys.Up;
             break;
         case 40:
-            key_state &= ~Constants.KEYDOWN;
+            key_state &= ~Constants.Keys.Down;
             break;
         case 37:
-            key_state &= ~Constants.KEYLEFT;
+            key_state &= ~Constants.Keys.Left;
             break;
         case 39:
-            key_state &= ~Constants.KEYRIGHT;
+            key_state &= ~Constants.Keys.Right;
             break;
         case 32:
-            key_state &= ~Constants.KEYSPACE;
+            key_state &= ~Constants.Keys.Space;
             break;
         case 87:
-            key_state &= ~Constants.KEYW;
+            key_state &= ~Constants.Keys.W;
             break;
         case 83:
-            key_state &= ~Constants.KEYS;
+            key_state &= ~Constants.Keys.S;
             break;
         case 65:
-            key_state &= ~Constants.KEYA;
+            key_state &= ~Constants.Keys.A;
             break;
         case 68:
-            key_state &= ~Constants.KEYD;
+            key_state &= ~Constants.Keys.D;
             break;
     }
 }

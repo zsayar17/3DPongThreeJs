@@ -31,7 +31,7 @@ function setup()
     Event.addEventListeners();
     Light.createAmbientLight();
 
-    gameArea = new GameArea(2);
+    gameArea = new GameArea(4);
 }
 
 function update()
