@@ -1,14 +1,13 @@
-import * as THREE from '../../Requirments/three.module.js';
-import * as Event from '../Core/event.js'
+import { BaseController } from './baseController.js';
 import * as Constants from '../Constants/constants.js'
 
-class AIController
+class AIController extends BaseController
 {
-
     constructor()
     {
-        this.allowedCameras = [];
-        this.currentCameraIndex = 0;
+        super();
+
+        this.controllerType = Constants.controllerTypes.AIController;
     }
 
     controlPaddle(pitch) {
@@ -25,12 +24,6 @@ class AIController
             || Math.abs(paddlePositionZ - ballPositionZ) < paddle.depth / 2 ) return 0;
         else if (ballPositionZ < paddlePositionZ) return Constants.moveUp;
         else return Constants.moveDown;
-
-    }
-
-    bindPitch(pitch)
-    {
-        this.allowedCameras.push(pitch.camera);
     }
 }
 

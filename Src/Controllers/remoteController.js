@@ -1,16 +1,14 @@
-import * as Event from '../Core/event.js'
 import * as Constants from '../Constants/constants.js'
+import { BaseController } from './baseController.js';
 
-class RemoteController
+class RemoteController extends BaseController
 {
     constructor()
     {
-        this.allowedCameras = [];
+        super();
 
-    }
-
-    bindPitch(pitch)
-    {
-        this.pitch = pitch;
+        this.controllerType = Constants.controllerTypes.RemoteController;
     }
 }
+
+export { RemoteController };

@@ -48,12 +48,18 @@ const ballAccelerationRate = 0.05;
 const ballMaxBounceAngle = Math.PI / 12 * 3;
 const ballMaxBeginAngle = Math.PI / 12 * 4;
 
-const maxScore = 5;
+const maxScore = 4;
 
 const moveUp = 1;
 const moveDown = -1;
 
 const LEFT = 0, RIGHT = 1;
+
+const controllerTypes = {
+    RegularController: 1,
+    AIController: 2,
+    RemoteController: 3
+};
 
 export {
     KEYUP, KEYDOWN, KEYLEFT, KEYRIGHT, KEYSPACE, KEYW, KEYS, KEYA, KEYD,
@@ -70,4 +76,5 @@ export {
     maxScore,
     moveUp, moveDown,
     LEFT, RIGHT,
+    controllerTypes
 };

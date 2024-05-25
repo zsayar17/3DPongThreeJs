@@ -1,14 +1,15 @@
 import * as Event from '../Core/event.js'
 import * as Constants from '../Constants/constants.js'
-import * as Camera from '../Core/camera.js'
+import { BaseController } from './baseController.js';
 
-class RegularController
+class RegularController extends BaseController
 {
 
     constructor()
     {
-        this.allowedCameras = [];
-        this.currentCameraIndex = 0;
+        super();
+
+        this.controllerType = Constants.controllerTypes.RegularController;
     }
 
     controlPaddle(pitch)
@@ -17,24 +18,6 @@ class RegularController
             return 1;
         if (Event.isKeyPress(Constants.KEYDOWN))
             return -1;
-
-        if (Event.catchMouseClick() && this.allowedCameras.length > 0)
-        {
-            this.currentCameraIndex = (this.currentCameraIndex + 1) % this.allowedCameras.length;
-            Camera.setCurrentCameraByİndex(this.allowedCameras[this.currentCameraIndex]);
-        }
-    }
-
-    bindPitch(pitch)
-    {
-        pitch.paddle.material.color.setHex(0x0000ff);
-
-        this.allowedCameras = [];
-
-        this.allowedCameras.push(pitch.camera);
-
-        for (var i = 0; i < pitch.stage.cameras.length; i++)
-            this.allowedCameras.push(pitch.stage.cameras[i]);
     }
 }
 

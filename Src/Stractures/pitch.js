@@ -116,7 +116,6 @@ class Pitch
         this.stage = stage;
         this.identityOnStage = identity;
         this.side = side;
-        this.controller.bindPitch(this);
     }
 
     bindController(controller)
@@ -150,6 +149,8 @@ class Pitch
             this.placed = true;
             this._isMoved = false;
             this._isrotated = false;
+
+            if (this.target == Constants.ToStage) this.controller.bindAllowedCameras(this);
             this.target = 0;
         }
     }

@@ -80,9 +80,6 @@ class Stage
 
         this.pitches[Constants.LEFT].bindToStage(this, { position: left_pitch_position, rotationY: 0 }, Constants.LEFT);
         this.pitches[Constants.RIGHT].bindToStage(this, { position: right_pitch_position, rotationY: Math.PI }, Constants.RIGHT);
-
-        this.cameras.push(this.pitches[Constants.LEFT].camera);
-        this.cameras.push(this.pitches[Constants.RIGHT].camera);
     }
 
     divorcePitches()
@@ -95,9 +92,6 @@ class Stage
 
         this.readyToPlay = false;
         this.gameWinner = null;
-
-        this.cameras.pop();
-        this.cameras.pop();
     }
 
     aimPitches(target)

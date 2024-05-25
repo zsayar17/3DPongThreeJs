@@ -1,8 +1,5 @@
 import * as THREE from '../../Requirments/three.module.js';
 
-import * as Scene from './scene.js';
-import * as Gui from './gui.js';
-
 var cameras = [];
 var currentCamera = null;
 
