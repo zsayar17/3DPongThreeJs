@@ -3,6 +3,8 @@ import { Pitch } from './pitch.js'
 
 import * as THREE from '../../../Requirments/three.module.js';
 import * as Constants from '../Constants/constants.js'
+import { AIController } from '../Controllers/aiController.js';
+import { RegularController } from '../Controllers/regularController.js';
 
 class GameArea
 {
@@ -33,12 +35,21 @@ class GameArea
 
     createPitches(pitchCount)
     {
+        var controllers = [];
+
         var distance = 25;
 
         this.pitches.push(new Pitch(0, new THREE.Vector3(-distance, -25, 0)));
         this.pitches.push(new Pitch(Math.PI, new THREE.Vector3(distance, -25, 0)));
         this.pitches.push(new Pitch(Math.PI / 2, new THREE.Vector3(0, -25, distance)));
         this.pitches.push(new Pitch(Math.PI / 2 * 3, new THREE.Vector3(0, -25, -distance)));
+
+        controllers.push(new RegularController(this.pitches[0]));
+        controllers.push(new AIController(this.pitches[1]));
+        controllers.push(new AIController(this.pitches[2]));
+        controllers.push(new AIController(this.pitches[3]));
+
+        for (var i = 0; i < this.pitches.length; i++) this.pitches[i].bindController(controllers[i]);
 
         for (var i = 0; i < this.pitches.length; i++)
             this.winnerPitches.push(this.pitches[i]);
@@ -82,12 +93,13 @@ class GameArea
     divorceStages()
     {
         this.situaiton = Constants.ToBegin;
-        this.eliminatedPitchesIndexes = this.getEliminatedPitchesIndexes();
 
         for (var i = 0; i < this.stages.length; i++)
         {
             this.stages[i].aimPitches(this.situaiton);
         }
+
+        if (this.winnerPitches.length == 1) this.gameWinner = this.winnerPitches[0];
     }
 
     getEliminatedPitchesIndexes()
@@ -122,7 +134,7 @@ class GameArea
     {
         var totalReachedCount = 0;
 
-        if (this.situaiton != Constants.ToStage && this.situaiton != Constants.ToBegin)
+        if ((this.situaiton != Constants.ToStage && this.situaiton != Constants.ToBegin) || this.gameWinner != null)
             return;
 
         for (var i = 0; i < this.stages.length; i++)
@@ -155,15 +167,10 @@ class GameArea
         for (var i = 0; i < this.stages.length; i++) this.stages[i].playGame();
 
         for (var i = 0; i < this.stages.length; i++)
-        {
             if (this.stages[i].gameWinner == null) return;
-        }
 
-        this.divorceStages();
+        if (this.situaiton == Constants.InStage) this.divorceStages();
     }
-
-
-
 
     ballPostions()
     {

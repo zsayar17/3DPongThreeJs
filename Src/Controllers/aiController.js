@@ -4,9 +4,17 @@ import * as Constants from '../Constants/constants.js'
 
 class AIController
 {
+
+    constructor()
+    {
+        this.allowedCameras = [];
+        this.currentCameraIndex = 0;
+    }
+
     controlPaddle(pitch) {
         var paddle = pitch.paddle;
         var stage = pitch.stage;
+
 
         var paddlePositionZ = paddle.getWorldPosition().z;
         var ballPositionZ = stage.ball.getWorldPosition().z;
@@ -18,6 +26,11 @@ class AIController
         else if (ballPositionZ < paddlePositionZ) return Constants.moveUp;
         else return Constants.moveDown;
 
+    }
+
+    bindPitch(pitch)
+    {
+        this.allowedCameras.push(pitch.camera);
     }
 }
 

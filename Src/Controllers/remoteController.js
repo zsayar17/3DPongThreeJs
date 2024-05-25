@@ -5,6 +5,12 @@ class RemoteController
 {
     constructor()
     {
+        this.allowedCameras = [];
 
+    }
+
+    bindPitch(pitch)
+    {
+        this.pitch = pitch;
     }
 }

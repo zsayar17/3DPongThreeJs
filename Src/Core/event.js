@@ -1,6 +1,7 @@
 import * as Constants from '../Constants/constants.js';
 
 var key_state;
+var mouse_state;
 
 function onİnputKeyDown(event)
 {
@@ -70,10 +71,17 @@ function onInputKeyUp(event)
     }
 }
 
+function onMouseClick(event)
+{
+    mouse_state = true;
+}
+
 function addEventListeners()
 {
     window.addEventListener('keydown', onİnputKeyDown);
     window.addEventListener('keyup', onInputKeyUp);
+    window.addEventListener('click', onMouseClick, false);
+
 }
 
 function isKeyPress(key)
@@ -81,4 +89,14 @@ function isKeyPress(key)
     return key_state & key;
 }
 
-export {addEventListeners, isKeyPress};
+function catchMouseClick()
+{
+    if (mouse_state)
+    {
+        mouse_state = false;
+        return true;
+    }
+    return false;
+}
+
+export {addEventListeners, isKeyPress, catchMouseClick};

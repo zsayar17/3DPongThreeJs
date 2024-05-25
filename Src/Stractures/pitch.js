@@ -116,6 +116,7 @@ class Pitch
         this.stage = stage;
         this.identityOnStage = identity;
         this.side = side;
+        this.controller.bindPitch(this);
     }
 
     bindController(controller)
