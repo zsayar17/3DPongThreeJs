@@ -2,6 +2,7 @@ import * as THREE from '../../Requirments/three.module.js';
 import * as Constants from '../Constants/constants.js'
 
 import { Box } from '../Primitives/box.js'
+import * as CostumMath from '../Utilis/costumMath.js'
 
 class Paddle extends Box
 {
@@ -11,7 +12,7 @@ class Paddle extends Box
 
         this.object.material.color.setHex(0xff0f0f);
         this.object.material.emissive = new THREE.Color(this.object.material.color.getHex());
-        this.object.material.emissiveIntensity = Constants.paddleEmissiveIntensity;
+        this.object.material.emissiveIntensity = Constants.PaddleEnvironment.EmissiveIntensity;
 
         this.basePitch = basePitch;
         this.position.x = this.basePitch.goal.position.x + (this.basePitch.goal.width) / 2 + this.width;
@@ -22,9 +23,9 @@ class Paddle extends Box
     static getSize(pitch)
     {
         return {
-            width: pitch.thickness * Constants.paddleThicknessRateByPitch,
-            height: pitch.height * Constants.paddleHeightRateByPitch,
-            depth: pitch.depth * Constants.paddleDepthRateByPitch
+            width: pitch.thickness * Constants.PaddleEnvironment.ThicknessRateByPitch,
+            height: pitch.height * Constants.PaddleEnvironment.HeightRateByPitch,
+            depth: pitch.depth * Constants.PaddleEnvironment.DepthRateByPitch
         };
     }
 
@@ -36,7 +37,7 @@ class Paddle extends Box
 
         direction = this.basePitch.yRotation == 0 ? 1 : -1;
         oldPosition = this.position.clone();
-        this.position.z -= Constants.paddleMoveSpeed * direction * moveDirection;
+        this.position.z -= Constants.PaddleEnvironment.MoveSpeed * direction * moveDirection * CostumMath.getDeltaTime();
 
         if (this.intersectionByDifferentObject(this.basePitch.walls[0]) || this.intersectionByDifferentObject(this.basePitch.walls[1]))
             this.position.copy(oldPosition);

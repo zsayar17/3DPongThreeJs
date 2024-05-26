@@ -16,9 +16,9 @@ function createSpotLight(position, intensity, target)
     spotLight.shadow.mapSize.width = 1024;
     spotLight.shadow.mapSize.height = 1024;
 
-    spotLight.decay = Constants.lightDecay;
-    spotLight.angle = Constants.lightAngle;
-    spotLight.penumbra = Constants.lightPenumbra;
+    spotLight.decay = Constants.LightEnvironment.Decay;
+    spotLight.angle = Constants.LightEnvironment.Angle;
+    spotLight.penumbra = Constants.LightEnvironment.Penumbra;
 
     Scene.addElementToScene(spotLight);
 
@@ -27,7 +27,7 @@ function createSpotLight(position, intensity, target)
 
 function createAmbientLight()
 {
-    var ambientLight = new THREE.AmbientLight(0xffffff, Constants.ambientLightIntensity);
+    var ambientLight = new THREE.AmbientLight(0xffffff, Constants.LightEnvironment.AmbientIntensity);
     Scene.addElementToScene(ambientLight);
 }
 

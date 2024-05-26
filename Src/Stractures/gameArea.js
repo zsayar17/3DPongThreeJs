@@ -16,7 +16,7 @@ class GameArea
     {
         this.stages = [];
 
-        this.situaiton = Constants.InBegin;
+        this.situaiton = Constants.Destinations.InBegin;
         this.pitches = [];
         this.winnerPitches = [];
         this.allowedCameras = [];
@@ -30,12 +30,12 @@ class GameArea
 
     createStages(stageCount)
     {
-        var beginZ = Constants.distanceBetweenStages * (stageCount - 1) / 2;
+        var beginZ = Constants.StageEnvironment.DistanceBetweenStages * (stageCount - 1) / 2;
 
         for (var i = 0; i < stageCount; i++)
         {
             this.stages.push(new Stage(new THREE.Vector3(0, 20, beginZ)));
-            beginZ -= Constants.distanceBetweenStages;
+            beginZ -= Constants.StageEnvironment.DistanceBetweenStages;
         }
     }
 
@@ -45,7 +45,7 @@ class GameArea
         var angle = 0;
         var positions = {x: 0, y: 0};
 
-        var distance = Math.max(Constants.DefaultPitchDepth, Constants.DefaultPitchWidth) + Constants.DefaultPitchThickness * 5;
+        var distance = Math.max(Constants.PitchEnvironment.DefaultDepth, Constants.PitchEnvironment.DefaultWidth) + Constants.PitchEnvironment.DefaultThickness * 5;
         distance = pitchCount > 2 ? distance / Math.sin(Math.PI * 2 / pitchCount) : distance;
 
         for (var i = 0; i < pitchCount; i++)
@@ -64,7 +64,7 @@ class GameArea
 
     createCameras(stageCount)
     {
-        var distance = (Math.abs(this.stages[this.stages.length - 1].position.z) + Constants.DefaultPitchWidth + Constants.DefaultPitchThickness)
+        var distance = (Math.abs(this.stages[this.stages.length - 1].position.z) + Constants.PitchEnvironment.DefaultWidth + Constants.PitchEnvironment.DefaultDepth)
                        / Math.cos(Math.PI / 3);
         this.allowedCameras.push(Camera.createPerspectiveCamera(new THREE.Vector3(0, distance , 0), new THREE.Vector3(0, 0, 0)));
 
@@ -84,7 +84,7 @@ class GameArea
 
     setBindedPitches()
     {
-        this.situaiton = Constants.InStage;
+        this.situaiton = Constants.Destinations.InStage;
 
         this.allowedCameras.splice(1, this.allowedCameras.length - 1);
         for (var i = 0; i < this.winnerPitches.length; i++)
@@ -107,7 +107,7 @@ class GameArea
     {
         var eliminatedPitchesIndexes = [];
 
-        this.situaiton = Constants.InBegin;
+        this.situaiton = Constants.Destinations.InBegin;
 
         eliminatedPitchesIndexes = this.getEliminatedPitchesIndexes();
         for(var i = 0; i < this.stages.length; i++) this.stages[i].divorcePitches();
@@ -120,16 +120,16 @@ class GameArea
         for (var i = 0; i < this.stages.length; i++)
         {
             this.stages[i].bindPitches(this.winnerPitches[i * 2], this.winnerPitches[i * 2 + 1]);
-            this.stages[i].aimPitches(Constants.ToStage);
+            this.stages[i].aimPitches(Constants.Destinations.ToStage);
         }
 
-        this.situaiton = Constants.ToStage;
+        this.situaiton = Constants.Destinations.ToStage;
     }
 
 
     divorceStages()
     {
-        this.situaiton = Constants.ToBegin;
+        this.situaiton = Constants.Destinations.ToBegin;
 
         for (var i = 0; i < this.stages.length; i++)
         {
@@ -174,7 +174,7 @@ class GameArea
     {
         var totalReachedCount = 0;
 
-        if ((this.situaiton != Constants.ToStage && this.situaiton != Constants.ToBegin) || this.gameWinner != null)
+        if ((this.situaiton != Constants.Destinations.ToStage && this.situaiton != Constants.Destinations.ToBegin) || this.gameWinner != null)
             return;
 
         for (var i = 0; i < this.stages.length; i++)
@@ -187,8 +187,8 @@ class GameArea
 
         if (totalReachedCount == this.stages.length)
         {
-            if (this.situaiton == Constants.ToStage) this.setBindedPitches();
-            else if (this.situaiton == Constants.ToBegin) this.setDivorcedPitches();
+            if (this.situaiton == Constants.Destinations.ToStage) this.setBindedPitches();
+            else if (this.situaiton == Constants.Destinations.ToBegin) this.setDivorcedPitches();
         }
     }
 
@@ -201,18 +201,18 @@ class GameArea
 
     playGame()
     {
-        if (this.gameWinner == null && this.situaiton == Constants.InBegin) this.bindStages();
+        if (this.gameWinner == null && this.situaiton == Constants.Destinations.InBegin) this.bindStages();
         if (!this.readyToPlay()) return;
 
         for (var i = 0; i < this.stages.length; i++) this.stages[i].playGame();
 
-        if (Event.catchMouseClick() && this.situaiton == Constants.InStage)
+        if (Event.catchMouseClick() && this.situaiton == Constants.Destinations.InStage)
             Camera.setCurrentCameraByİndex(this.allowedCameras[++this.currentCamera % this.allowedCameras.length]);
 
         for (var i = 0; i < this.stages.length; i++)
             if (this.stages[i].gameWinner == null) return;
 
-        if (this.situaiton == Constants.InStage) this.divorceStages();
+        if (this.situaiton == Constants.Destinations.InStage) this.divorceStages();
     }
 
     ballPostions()

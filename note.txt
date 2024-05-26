@@ -1,2 +1,0 @@
-<script type="module" src="Src/Designs/singlePlayer.js"></script>
-<script type="module" src="Src/deneme.js"></script>

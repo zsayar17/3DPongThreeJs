@@ -11,8 +11,8 @@ const Keys = {
 };
 
 const PitchEnvironment = {
-    RotateSpeed: Math.PI / 30,
-    MoveSpeed: 0.6,
+    RotateSpeed: Math.PI / 180,
+    MoveSpeed: 0.20,
 
     DefaultWidth: 20,
     DefaultHeight: 1,
@@ -26,56 +26,52 @@ const PaddleEnvironment = {
     DepthRateByPitch: 0.3,
     ThicknessRateByPitch: 1,
 
-    MoveSpeed: 0.15,
+    MoveSpeed: 20,
 
     EmissiveIntensity: 0.7,
 };
 
-const PitchRotateSpeed = Math.PI / 45;
-const PitchMoveSpeed = 0.45;
+const LightEnvironment = {
+    DistanceFromStage: Math.max(PitchEnvironment.DefaultWidth, PitchEnvironment.DefaultDepth),
+    BeginIntensity: 5,
+    Angle: 1,
+    Penumbra: 1,
+    Decay: 0.4,
 
-const DefaultPitchWidth = 20;
-const DefaultPitchHeight = 1;
-const DefaultPitchDepth = 20;
-const DefaultPitchThickness = 1;
+    AmbientIntensity: 1.2,
+};
 
-const paddleWidtRateByPitch = 0.08;
-const paddleHeightRateByPitch = 1;
-const paddleDepthRateByPitch = 0.3;
-const paddleThicknessRateByPitch = 1;
+const Destinations = {
+    ToStage: 1,
+    ToBegin: 2,
+    InStage: 3,
+    InBegin: 4,
+};
 
-const paddleMoveSpeed = 0.15;
+const StageEnvironment = {
+    DistanceBetweenStages: PitchEnvironment.DefaultDepth * 1.5,
+};
 
-const paddleEmissiveIntensity = 0.7;
-
-const ToStage = 1;
-const ToBegin = 2;
-const InStage = 3;
-const InBegin = 4;
-
-const lightDistanceFromStage = Math.max(DefaultPitchWidth, DefaultPitchDepth);
-const lightBeginIntensity = 5;
-const lightAngle = 1;
-const lightPenumbra = 1;
-const lightDecay = 0.4;
-
-const ambientLightIntensity = 1.2;
-
-const distanceBetweenStages = DefaultPitchDepth * 1.5;
-
-const ballRadius = 0.7;
-const ballSpeed = 0.2;
-const maxBallSpeed = ballSpeed * 4;
-const ballAccelerationRate = 0.05;
-const ballMaxBounceAngle = Math.PI / 12 * 3;
-const ballMaxBeginAngle = Math.PI / 12 * 4;
+const BallEnvironment = {
+    Radius: 0.7,
+    BeginSpeed: 20,
+    MaxSpeed: 80,
+    AccelerationRate: 0.05,
+    MaxBounceAngle: Math.PI / 12 * 3,
+    MaxBeginAngle: Math.PI / 12 * 4,
+};
 
 const maxScore = 3;
 
-const moveUp = 1;
-const moveDown = -1;
+const MoveDirection = {
+    Up: 1,
+    Down: -1,
+};
 
-const LEFT = 0, RIGHT = 1;
+const Side = {
+    Left: 0,
+    Right: 1,
+};
 
 const controllerTypes = {
     RegularController: 1,
@@ -85,18 +81,14 @@ const controllerTypes = {
 
 export {
     Keys,
-    PitchRotateSpeed, PitchMoveSpeed,
-    DefaultPitchWidth, DefaultPitchHeight, DefaultPitchDepth, DefaultPitchThickness,
-    paddleWidtRateByPitch, paddleHeightRateByPitch, paddleDepthRateByPitch, paddleThicknessRateByPitch,
-    paddleMoveSpeed,
-    paddleEmissiveIntensity,
-    ToStage, ToBegin, InStage, InBegin,
-    lightDistanceFromStage, lightBeginIntensity, lightAngle, lightPenumbra, lightDecay,
-    ambientLightIntensity,
-    distanceBetweenStages,
-    ballRadius, ballSpeed, ballMaxBounceAngle, ballMaxBeginAngle, ballAccelerationRate, maxBallSpeed,
+    PitchEnvironment,
+    PaddleEnvironment,
+    LightEnvironment,
+    StageEnvironment,
+    Destinations,
+    BallEnvironment,
     maxScore,
-    moveUp, moveDown,
-    LEFT, RIGHT,
+    MoveDirection,
+    Side,
     controllerTypes
 };

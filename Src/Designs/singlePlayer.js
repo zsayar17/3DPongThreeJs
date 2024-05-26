@@ -25,7 +25,7 @@ function randomBindPitches()
     var randomNumber1 = 0;
     var randomNumber2 = 0;
 
-    if (stage1.target == Constants.ToStage || stage2.target == Constants.ToStage) return;
+    if (stage1.target == Constants.Destinations.ToStage || stage2.target == Constants.Destinations.ToStage) return;
     for (var i = 0; i < 4; i++) tempPitches.push(pitches[i]);
 
     randomNumber1 = Math.floor(Math.random() * tempPitches.length);
@@ -36,8 +36,8 @@ function randomBindPitches()
     stage1.bindPitches(pitches[0], pitches[3]);
     stage2.bindPitches(pitches[1], pitches[2]);
 
-    stage1.aimPitches(Constants.ToStage);
-    stage2.aimPitches(Constants.ToStage);
+    stage1.aimPitches(Constants.Destinations.ToStage);
+    stage2.aimPitches(Constants.Destinations.ToStage);
 }
 
 function setup()

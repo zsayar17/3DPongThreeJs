@@ -1,3 +1,26 @@
+import * as THREE from '../../Requirments/three.module.js';
+
+var clock = new THREE.Clock();
+var deltaTime = 0;
+let isDocumentHidden = false;
+
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) isDocumentHidden = true;
+    else
+    {
+        clock.start();
+        isDocumentHidden = false;
+    }
+});
+
+function getDeltaTime() {
+    return deltaTime;
+}
+
+function updateDeltaTime() {
+    if (!isDocumentHidden) deltaTime = clock.getDelta();
+    else deltaTime = 0;
+}
 
 function roundToPrecision(value, precision) {
     var multiplier = Math.pow(10, precision);
@@ -12,4 +35,4 @@ function rotatePoint(x, y, angle) {
     return { x: newX, y: newY };
 }
 
-export { roundToPrecision, rotatePoint };
+export { roundToPrecision, rotatePoint, getDeltaTime, updateDeltaTime};

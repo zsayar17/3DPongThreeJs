@@ -2,6 +2,10 @@ import * as THREE from '../../Requirments/three.module.js';
 import { Sphere } from '../Primitives/sphere.js'
 
 import * as Constants from '../Constants/constants.js';
+import * as CostumMath from '../Utilis/costumMath.js'
+
+
+var clock = new THREE.Clock();
 
 class Ball extends Sphere
 {
@@ -19,41 +23,45 @@ class Ball extends Sphere
         this.dx = 0;
         this.dz = 0;
         this.last_touch = null;
+        this.last_bounced_wall = null;
 
-        this.speed = Constants.ballSpeed;
+        this.speed = Constants.BallEnvironment.BeginSpeed;
     }
 
     setRandomDirection(paddle_left, paddle_right)
     {
         this.object.position.copy(this.beginPosition);
 
-        var angle = Math.random() + (Math.PI - Constants.ballMaxBeginAngle) / 2;
+        var angle = Math.random() + (Math.PI - Constants.BallEnvironment.MaxBeginAngle) / 2;
 
-        this.dz = Constants.ballSpeed * Math.cos(angle);
-        this.dx = Constants.ballSpeed * Math.sin(angle) * (Math.random() > 0.5 ? 1 : -1);
+        this.dz = Constants.BallEnvironment.BeginSpeed * Math.cos(angle);
+        this.dx = Constants.BallEnvironment.BeginSpeed * Math.sin(angle) * (Math.random() > 0.5 ? 1 : -1);
 
         if (this.dx > 0) this.last_touch = paddle_left;
         else this.last_touch = paddle_right;
 
-        this.speed = Constants.ballSpeed;
+        this.last_bounced_wall = null;
+        this.speed = Constants.BallEnvironment.BeginSpeed;
     }
 
     move()
     {
-        this.position.x += this.dx;
-        this.position.z += this.dz;
+        this.position.x += this.dx * CostumMath.getDeltaTime();
+        this.position.z += this.dz * CostumMath.getDeltaTime();
     }
 
-    bounceToWall()
+    bounceToWall(bouncedWall)
     {
         this.dz *= -1;
+
+        this.last_bounced_wall = bouncedWall;
     }
 
     bounceToGoal(paddles)
     {
         this.last_touch.basePitch.setScore(this.last_touch.basePitch.score + 1);
 
-        this.setRandomDirection(paddles[Constants.LEFT], paddles[Constants.RIGHT]);
+        this.setRandomDirection(paddles[Constants.Side.Left], paddles[Constants.Side.Right]);
     }
 
     bounceToPaddle(paddle)
@@ -72,24 +80,26 @@ class Ball extends Sphere
         intersectionNormal = intersectionDiff / (paddle.depth / 2);
         intersectionNormal = Math.abs(intersectionNormal) > 1 ? Math.sign(intersectionNormal) : intersectionNormal;
 
-        angle = Constants.ballMaxBounceAngle * intersectionNormal;
+        angle = Constants.BallEnvironment.MaxBounceAngle * intersectionNormal;
 
         this.dx = this.speed * Math.cos(angle) * -Math.sign(this.dx);
         this.dz = -this.speed * Math.sin(angle);
 
 
-        if (this.speed < Constants.maxBallSpeed) this.speed += this.speed * Constants.ballAccelerationRate;
+        if (this.speed < Constants.BallEnvironment.MaxSpeed) this.speed += this.speed * Constants.BallEnvironment.AccelerationRate;
 
         this.last_touch = paddle;
+
+        this.last_bounced_wall = null;
     }
 
     ballCollisionWithElements(walls, paddles, goals)
     {
         for (var i = 0; i < walls.length; i++)
         {
-            if (this.intersectionByDifferentObject(walls[i]))
+            if (this.intersectionByDifferentObject(walls[i]) && this.last_bounced_wall != walls[i])
             {
-                this.bounceToWall();
+                this.bounceToWall(walls[i]);
                 return;
             }
         }
@@ -124,7 +134,7 @@ class Ball extends Sphere
 
     ballCollisionWithStage(stage)
     {
-        this.ballCollisionWithPitches(stage.pitches[Constants.LEFT], stage.pitches[Constants.RIGHT]);
+        this.ballCollisionWithPitches(stage.pitches[Constants.Side.Left], stage.pitches[Constants.Side.Right]);
     }
 
     setVisible(visible)
