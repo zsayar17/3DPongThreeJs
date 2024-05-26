@@ -1,6 +1,8 @@
 import * as THREE from '../../Requirments/three.module.js';
 import * as Renderer from './renderer.js';
 import * as Camera from './camera.js'
+import * as Identity from '../Identity/Identity.js';
+import * as Constants from '../Constants/constants.js';
 
 var scene;
 
@@ -12,6 +14,8 @@ function createScene()
 
 function addElementToScene(element)
 {
+    if (Identity.getIdentity() == Constants.Identity.server) return;
+
     scene.add(element);
 }
 

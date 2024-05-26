@@ -11,8 +11,8 @@ const Keys = {
 };
 
 const PitchEnvironment = {
-    RotateSpeed: Math.PI / 180,
-    MoveSpeed: 0.20,
+    RotateSpeed: Math.PI / 90,
+    MoveSpeed: 0.029,
 
     DefaultWidth: 20,
     DefaultHeight: 1,
@@ -54,14 +54,12 @@ const StageEnvironment = {
 
 const BallEnvironment = {
     Radius: 0.7,
-    BeginSpeed: 20,
+    BeginSpeed: 30,
     MaxSpeed: 80,
     AccelerationRate: 0.05,
     MaxBounceAngle: Math.PI / 12 * 3,
     MaxBeginAngle: Math.PI / 12 * 4,
 };
-
-const maxScore = 3;
 
 const MoveDirection = {
     Up: 1,
@@ -79,6 +77,15 @@ const controllerTypes = {
     RemoteController: 3
 };
 
+const Identity = {
+    none: 0,
+    server: 1,
+    onlineClient: 2,
+    offlineClient: 3
+};
+
+const maxScore = 3;
+
 export {
     Keys,
     PitchEnvironment,
@@ -90,5 +97,6 @@ export {
     maxScore,
     MoveDirection,
     Side,
+    Identity,
     controllerTypes
 };

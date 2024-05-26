@@ -14,10 +14,13 @@ class RegularController extends BaseController
 
     controlPaddle(pitch)
     {
+        var direction = 1;
+
+        direction = pitch.side == Constants.Side.Left ? 1 : -1;
         if (Event.isKeyPress(Constants.Keys.Left))
-            return 1;
+            return 1 * direction;
         if (Event.isKeyPress(Constants.Keys.Right))
-            return -1;
+            return -1 * direction;
     }
 }
 

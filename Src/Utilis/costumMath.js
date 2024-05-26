@@ -13,26 +13,36 @@ document.addEventListener('visibilitychange', () => {
     }
 });
 
-function getDeltaTime() {
+function getDeltaTime()
+{
     return deltaTime;
 }
 
-function updateDeltaTime() {
+function updateDeltaTime()
+{
     if (!isDocumentHidden) deltaTime = clock.getDelta();
     else deltaTime = 0;
 }
 
-function roundToPrecision(value, precision) {
+function roundToPrecision(value, precision)
+{
     var multiplier = Math.pow(10, precision);
 
     return Math.round(value * multiplier) / multiplier;
 }
 
-function rotatePoint(x, y, angle) {
+function rotatePoint(x, y, angle)
+{
     var newX = x * Math.cos(angle) - y * Math.sin(angle);
     var newY = x * Math.sin(angle) + y * Math.cos(angle);
 
     return { x: newX, y: newY };
 }
 
-export { roundToPrecision, rotatePoint, getDeltaTime, updateDeltaTime};
+function getRandomElement(arr)
+{
+    const randomIndex = Math.floor(Math.random() * arr.length);
+    return randomIndex;
+}
+
+export { roundToPrecision, rotatePoint, getDeltaTime, updateDeltaTime, getRandomElement};

@@ -5,13 +5,15 @@ import { Ball } from '../Objects/ball.js'
 
 import * as Constants from '../Constants/constants.js'
 
-var cameraIndex = 0;
+import * as THREE from '../../Requirments/three.module.js';
 
 class Stage
 {
     constructor(position)
     {
         this.position = position;
+
+        this.group = new THREE.Group();
 
         this.pitches = [];
 
@@ -21,21 +23,21 @@ class Stage
         this.moving = false;
 
         this.readyToPlay = false;
-        this.gameWinner = null;
+        this.stageWinner = null;
 
         this.ball = null;
-        this.ligt = null;
+        this.light = null;
 
         this.cameras = [];
 
         this.target = 0;
 
-        this._createBall();
-        this._createLight();
-        this._createCameras();
+        this.createBall();
+        this.createLight();
+        this.createCameras();
     }
 
-    _createCameras()
+    createCameras()
     {
         var camera_position = this.position.clone();
 
@@ -49,15 +51,15 @@ class Stage
         this.cameras.push(Camera.createPerspectiveCamera(camera_position, this.position));
     }
 
-    _createLight()
+    createLight()
     {
         var light_position = this.position.clone();
 
         light_position.y += Constants.LightEnvironment.DistanceFromStage;
-        this.ligt = Lights.createSpotLight(light_position, Constants.LightEnvironment.BeginIntensity, this.ball.object);
+        this.light = Lights.createSpotLight(light_position, Constants.LightEnvironment.BeginIntensity, this.ball.object);
     }
 
-    _createBall()
+    createBall()
     {
         var ball_position = this.position.clone();
 
@@ -88,36 +90,58 @@ class Stage
         this.pitches[Constants.Side.Right].removeFormStage();
 
         this.pitches[Constants.Side.Left] = null;
-        this.pitches[Constants.RISide.RightGHT] = null;
+        this.pitches[Constants.Side.Right] = null;
 
         this.readyToPlay = false;
-        this.gameWinner = null;
+        this.stageWinner = null;
     }
 
-    aimPitches(target)
+    aimPitches(destination)
     {
-        if (this.moving || target == this.target) return;
+        if (this.moving || destination == this.target) return;
 
-        this.target = target;
-        this.pitches[Constants.Side.Left].aimToTarget(target);
-        this.pitches[Constants.Side.Right].aimToTarget(target);
+        this.target = destination;
+        this.pitches[Constants.Side.Left].aimToDestination(destination);
+        this.pitches[Constants.Side.Right].aimToDestination(destination);
         this.moving = true;
 
         if (this.readyToPlay) this.ball.setVisible(false);
     }
 
-    movePitchesToAim()
+    movePitchesToDestination()
     {
         if (!this.moving) return;
 
-        this.pitches[Constants.Side.Left].moveToAim();
-        this.pitches[Constants.Side.Right].moveToAim();
-
-        if (this.pitches[Constants.Side.Left].placed && this.pitches[Constants.Side.Right].placed)
+        if (!this.pitches[Constants.Side.Left].placed)
         {
-            this.moving = false;
-            if (this.readyToPlay = !this.readyToPlay) this._startGame();
+            this.pitches[Constants.Side.Left].moveToDestination();
+            return;
         }
+        else if (!this.pitches[Constants.Side.Right].placed)
+        {
+            this.pitches[Constants.Side.Right].moveToDestination();
+            return;
+        }
+
+        this.moving = false;
+        if (this.readyToPlay = !this.readyToPlay) this.startGame();
+    }
+
+    triggerShake()
+    {
+        console.log(this.cameras.length);
+        for (var i = 0; i < this.cameras.length; i++)
+            Camera.triggerShakeCamera(i);
+        Camera.triggerShakeCamera(this.pitches[Constants.Side.Left].camera);
+        Camera.triggerShakeCamera(this.pitches[Constants.Side.Right].camera);
+    }
+
+    updateShake()
+    {
+        for (var i = 0; i < this.cameras.length; i++)
+            Camera.updateShakeCamera(i, this.ball.speed / Constants.BallEnvironment.MaxSpeed);
+        Camera.updateShakeCamera(this.pitches[Constants.Side.Left].camera, this.ball.speed / Constants.BallEnvironment.MaxSpeed);
+        Camera.updateShakeCamera(this.pitches[Constants.Side.Right].camera, this.ball.speed / Constants.BallEnvironment.MaxSpeed);
     }
 
     movePaddles()
@@ -126,7 +150,7 @@ class Stage
         this.pitches[Constants.Side.Right].movePaddle();
     }
 
-    _startGame()
+    startGame()
     {
         this.ball.setVisible(true);
         this.ball.setRandomDirection(this.pitches[Constants.Side.Left].paddle, this.pitches[Constants.Side.Right].paddle);
@@ -140,22 +164,16 @@ class Stage
 
     playGame()
     {
-        if(!this.readyToPlay || this.moving || this.gameWinner != null) return;
+        if(!this.readyToPlay || this.moving || this.stageWinner != null) return;
 
         this.movePaddles();
         this.moveBall();
+        this.updateShake();
 
         if(this.pitches[Constants.Side.Left].score == Constants.maxScore)
-            this.gameWinner = this.pitches[Constants.Side.Left];
+            this.stageWinner = this.pitches[Constants.Side.Left];
         else if (this.pitches[Constants.Side.Right].score == Constants.maxScore)
-            this.gameWinner = this.pitches[Constants.Side.Right];
-    }
-
-    switchCamera()
-    {
-        cameraIndex = (cameraIndex + 1) % this.cameras.length;
-
-        Camera.setCurrentCameraByİndex(this.cameras[cameraIndex]);
+            this.stageWinner = this.pitches[Constants.Side.Right];
     }
 }
 

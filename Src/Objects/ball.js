@@ -4,6 +4,8 @@ import { Sphere } from '../Primitives/sphere.js'
 import * as Constants from '../Constants/constants.js';
 import * as CostumMath from '../Utilis/costumMath.js'
 
+import * as Camera from '../Core/camera.js';
+
 
 var clock = new THREE.Clock();
 
@@ -72,6 +74,8 @@ class Ball extends Sphere
         var angle;
 
         if (this.last_touch == paddle) return;
+
+        paddle.basePitch.stage.triggerShake();
 
         paddle_world_position = new THREE.Vector3();
         paddle_world_position = paddle.getWorldPosition();

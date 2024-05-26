@@ -23,7 +23,7 @@ class Pitch
         this.yRotation = yRotation;
         this.beginYRotation = this.yRotation;
 
-        this.target = 0;
+        this.destination = 0;
 
         this.walls = [];
         this.goal = null;
@@ -36,8 +36,8 @@ class Pitch
         this.stage = null;
         this.identityOnStage = null;
 
-        this._isMoved = false;
-        this._isRotated = false;
+        this.isMoved = false;
+        this.isRotated = false;
         this.placed = true;
         this.side = 0;
 
@@ -45,14 +45,13 @@ class Pitch
 
         this.controller = null;
 
+        this.createGroup();
+
         this.createWalls();
         this.createFloor();
         this.createGoal();
         this.createPaddle();
-
         this.createCamera();
-
-        this.createGroup();
     }
 
     createWalls()
@@ -62,22 +61,31 @@ class Pitch
 
         this.walls[0].position.set(0, this.height / 2, (this.depth + this.thickness) / 2 );
         this.walls[1].position.set(0, this.height / 2, -(this.depth + this.thickness) / 2);
+
+        this.walls[0].addObjectToGroup(this.group);
+        this.walls[1].addObjectToGroup(this.group);
     }
 
     createFloor()
     {
         this.floor = new Plane(this.width, this.depth);
+
+        this.floor.addObjectToGroup(this.group);
     }
 
     createGoal()
     {
         this.goal = new Box(this.thickness, this.height,  2 * this.thickness + this.depth);
         this.goal.position.set(- (this.width + this.thickness) / 2, this.height / 2, 0);
+
+        this.goal.addObjectToGroup(this.group);
     }
 
     createPaddle()
     {
         this.paddle = new Paddle(this, Paddle.getSize(this));
+
+        this.paddle.addObjectToGroup(this.group);
     }
 
     createCamera()
@@ -91,18 +99,12 @@ class Pitch
         cameraTarget = new THREE.Vector3(0, 0, 0);
 
         this.camera = Camera.createPerspectiveCamera(cameraPosition, cameraTarget);
+        Camera.getCameraByIndex(this.camera).addObjectToGroup(this.group);
     }
 
     createGroup()
     {
         this.group = new THREE.Group();
-
-        this.walls[0].addObjectToGroup(this.group);
-        this.walls[1].addObjectToGroup(this.group);
-        this.floor.addObjectToGroup(this.group);
-        this.goal.addObjectToGroup(this.group);
-        this.paddle.addObjectToGroup(this.group);
-        Camera.getCameraByIndex(this.camera).addObjectToGroup(this.group);
 
         this.group.position.set(this.position.x, this.position.y, this.position.z);
         this.group.rotation.y = this.yRotation;
@@ -134,69 +136,77 @@ class Pitch
         this.floor.setText('');
     }
 
-    moveToAim()
+    moveToDestination()
     {
         var targetPosition, targetYRotation;
 
         if (this.placed) return;
 
-        targetPosition = this.target != Constants.Destinations.ToStage ? this.beginPosition : this.identityOnStage.position;
-        targetYRotation = this.target != Constants.Destinations.ToStage ? this.beginYRotation : this.identityOnStage.rotationY;
+        targetPosition = this.destination != Constants.Destinations.ToStage ? this.beginPosition : this.identityOnStage.position;
+        targetYRotation = this.destination != Constants.Destinations.ToStage ? this.beginYRotation : this.identityOnStage.rotationY;
 
-        this._moveTowardsTarget(targetPosition, Constants.PitchEnvironment.MoveSpeed);
-        this._rotateTowardsTarget(targetYRotation, Constants.PitchEnvironment.RotateSpeed);
+        this.moveTowardsTarget(targetPosition, Constants.PitchEnvironment.MoveSpeed);
+        this.rotateTowardsTarget(targetYRotation, Constants.PitchEnvironment.RotateSpeed);
 
-        if (this._isMoved && this._isrotated)
+        if (this.isMoved && this.isRotated)
         {
             this.placed = true;
-            this._isMoved = false;
-            this._isrotated = false;
+            this.isMoved = false;
+            this.isRotated = false;
 
-            if (this.target == Constants.Destinations.ToStage) this.controller.bindAllowedCameras(this);
-            this.target = 0;
+            if (this.destination == Constants.Destinations.ToStage) this.controller.bindAllowedCameras(this);
+            this.destination = 0;
         }
     }
 
-    moveTowardsTarget(target, speed)
-    {
-        var direction, newPosition;
+    moveTowardsTarget(target, speed) {
+        if (this.isMoved == true) return;
 
-        if (this._isMoved == true) return;
+        var newPosition = this.group.position.clone().lerp(target, speed);
 
-        direction = new THREE.Vector3().copy(target).sub(this.group.position).normalize();
-        newPosition = this.group.position.clone().add(direction.multiplyScalar(speed));
         this.group.position.copy(newPosition);
 
-        if (newPosition.distanceTo(target) < speed * 2)
-        {
-            this._isMoved = true;
+        if (newPosition.distanceTo(target) < speed * 2) {
+            this.isMoved = true;
             this.group.position.copy(target);
         }
     }
 
-    rotateTowardsTarget(target_rotate_y, speed)
-    {
-        var newRotation;
+    rotateTowardsTarget(target_rotate_y, speed) {
+        if (this.isRotated == true) return;
 
-        if (this._isrotated == true) return;
+        var currentRotation = this.group.rotation.y % (Math.PI * 2);
+        var targetRotation = target_rotate_y % (Math.PI * 2);
 
-        newRotation = this.group.rotation.y + speed;
-        this.group.rotation.y = newRotation % (Math.PI * 2);
+        var deltaRotation = targetRotation - currentRotation;
 
-        if (Math.abs(newRotation - target_rotate_y) < 2 * speed)
-        {
-            this._isrotated = true;
+        if (deltaRotation > Math.PI) deltaRotation -= Math.PI * 2;
+        else if (deltaRotation < -Math.PI) deltaRotation += Math.PI * 2;
+
+        var lerpFactor = speed / Math.abs(deltaRotation);
+
+        if (lerpFactor > 1) lerpFactor = 1;
+
+        var newRotation = currentRotation + deltaRotation * lerpFactor;
+
+        newRotation = newRotation % (Math.PI * 2);
+        if (newRotation < 0) newRotation += Math.PI * 2;
+
+        this.group.rotation.y = newRotation;
+
+        if (Math.abs(deltaRotation) < speed * 2) {
+            this.isRotated = true;
             this.group.rotation.y = target_rotate_y;
             this.yRotation = target_rotate_y;
         }
     }
 
-    aimToTarget(target)
+    aimToDestination(destination)
     {
         if (!this.placed) return;
 
         this.placed = false;
-        this.target = target;
+        this.destination = destination;
     }
 
     movePaddle()

@@ -3,24 +3,20 @@ import * as Renderer from '../../Core/renderer.js'
 import * as Event from '../../Core/event.js'
 import * as Light from '../../Core/light.js'
 import { GameArea } from '../../Stractures/gameArea.js'
-
 import * as CostumMath from '../../Utilis/costumMath.js'
-import * as Constant from '../../Constants/constants.js'
-import * as Identity from '../../Identity/Identity.js'
 
-var playerCount = 32;
+var id = 0;
 var gameArea = null;
+var playerCount = 4;
 
 function setup()
 {
-    Identity.setIdentity(Constant.Identity.offlineClient);
-
     Scene.createScene();
     Renderer.createRenderer();
     Event.addEventListeners();
     Light.createAmbientLight();
 
-    gameArea = new GameArea(4);
+    gameArea = new GameArea(playerCount / 2);
 }
 
 function update()
