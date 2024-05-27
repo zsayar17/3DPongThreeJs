@@ -11,8 +11,7 @@ import * as Identity from '../../Identity/Identity.js';
 import * as CostumMath from '../../Utilis/costumMath.js'
 
 
-var serverGameArea = null;
-var clientGameArea = null;
+var gameServer = null;
 
 function setup()
 {
@@ -21,26 +20,18 @@ function setup()
     Event.addEventListeners();
     Light.createAmbientLight();
 
-    Identity.setIdentity(Constants.Identity.server);
-    serverGameArea = new GameArea(Constants.GameModePlayerCount.OnlineMultiplayer / 2);
-
-    Identity.setIdentity(Constants.Identity.onlineClient);
-    clientGameArea = new GameArea(Constants.GameModePlayerCount.OnlineMultiplayer / 2);
+    Identity.setIdentity(Constants.Identity.singleOfflineClient);
+    gameServer = new GameArea(Constants.GameModePlayerCount.SinglePlayer / 2);
 }
 
 function update()
 {
     requestAnimationFrame(update);
 
-    Identity.setIdentity(Constants.Identity.server);
     CostumMath.updateDeltaTime();
-    serverGameArea.movePitchesToDestination();
-    serverGameArea.playGame();
-    serverGameArea.setInfos();
+    gameServer.movePitchesToDestination();
+    gameServer.playGame();
 
-    Identity.setIdentity(Constants.Identity.onlineClient);
-    Identity.fetchInfos();
-    clientGameArea.playGameForOnlineClient();
     Scene.renderScene();
 }
 

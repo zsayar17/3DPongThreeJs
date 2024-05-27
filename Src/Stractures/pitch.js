@@ -10,6 +10,8 @@ import { Paddle } from '../Objects/paddle.js';
 
 import * as Identity from '../Identity/Identity.js';
 
+import * as Events from '../Core/event.js';
+
 var pitchId = 0;
 
 class Pitch
@@ -17,7 +19,6 @@ class Pitch
     constructor(yRotation = 0, position = new THREE.Vector3(0, 0, 0))
     {
         this.id = pitchId++;
-        if (Identity.getIdentity() != Constants.Identity.server) this.id -= Constants.GameModePlayerCount.OfflineMultiPlayer;
 
         this.width = Constants.PitchEnvironment.DefaultWidth;
         this.height = Constants.PitchEnvironment.DefaultHeight;
@@ -37,6 +38,9 @@ class Pitch
         this.floor = null;
         this.paddle = null;
         this.camera = null;
+
+        this.currentCamera = 0;
+        this.allowedCameras = [];
 
         this.group = null;
 
@@ -106,7 +110,7 @@ class Pitch
         cameraPosition = new THREE.Vector3(distanceX, distanceY, 0);
         cameraTarget = new THREE.Vector3(0, 0, 0);
 
-        this.camera = Camera.createPerspectiveCamera(cameraPosition, cameraTarget);
+        this.camera = Camera.createPerspectiveCamera(Constants.CameraTypes.Pitch, cameraPosition, cameraTarget);
         Camera.getCameraByIndex(this.camera).addObjectToGroup(this.group);
     }
 
@@ -162,7 +166,6 @@ class Pitch
             this.isMoved = false;
             this.isRotated = false;
 
-            if (this.destination == Constants.Destinations.ToStage) this.controller.bindAllowedCameras(this);
             this.destination = 0;
         }
     }
@@ -241,8 +244,83 @@ class Pitch
         this.floor.setText(score.toString());
     }
 
+    setAllowedCameras(gameArea, singleCameraMode = false)
+    {
+        this.allowedCameras = [];
+
+        if (singleCameraMode)
+        {
+            Camera.addAllowedPitchToCamera(gameArea.wideCamera, this.id);
+            this.allowedCameras.push(gameArea.wideCamera);
+
+            this.resetDisplayCamera();
+            return;
+        }
+
+        if (this.destroyed)
+        {
+            var availableCameras = gameArea.getAvailableCameras();
+
+            for (var i = 0; i < availableCameras.length; i++)
+            {
+                Camera.addAllowedPitchToCamera(availableCameras[i], this.id);
+                this.allowedCameras.push(availableCameras[i]);
+            }
+            this.resetDisplayCamera();
+            return;
+        }
+
+        Camera.addAllowedPitchToCamera(this.camera, this.id);
+        this.allowedCameras.push(this.camera);
+
+        for (var i = 0;this.stage != null && i < this.stage.cameras.length; i++)
+        {
+            this.allowedCameras.push(this.stage.cameras[i]);
+            Camera.addAllowedPitchToCamera(this.stage.cameras[i], this.id);
+        }
+
+        Camera.addAllowedPitchToCamera(gameArea.wideCamera, this.id);
+        this.allowedCameras.push(gameArea.wideCamera);
+
+        this.resetDisplayCamera();
+    }
+
+    resetDisplayCamera()
+    {
+        if ((Identity.getIdentity() != Constants.Identity.singleOfflineClient && Identity.getIdentity() != Constants.Identity.onlineClient)
+            || this.controller == null ||  this.controller.controllerType == Constants.controllerTypes.AIController) return;
+
+        this.currentCamera = 0;
+        Camera.setCurrentCameraByİndex(this.allowedCameras[this.currentCamera]);
+    }
+
+    changeCamera()
+    {
+        if ((Identity.getIdentity() != Constants.Identity.singleOfflineClient && Identity.getIdentity() != Constants.Identity.onlineClient)
+            || this.controller.controllerType == Constants.controllerTypes.AIController) return;
+
+        if (Events.catchMouseClick())
+        {
+            this.currentCamera = (this.currentCamera + 1) % this.allowedCameras.length;
+
+            Camera.setCurrentCameraByİndex(this.allowedCameras[this.currentCamera]);
+        }
+    }
+
     setByServer()
     {
+        var cameras = Identity.fetchCameraInfo(this.id);
+
+        this.allowedCameras = cameras;
+
+        if (cameras.length != this.allowedCameras.length)
+        {
+            this.currentCamera = 0;
+            Camera.setCurrentCameraByİndex(this.allowedCameras[this.currentCamera]);
+        }
+
+        this.changeCamera();
+
         if (this.destroyed) return;
 
         var info = Identity.fetchPitchInfo(this.id);

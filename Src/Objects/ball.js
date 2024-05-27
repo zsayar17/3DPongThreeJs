@@ -34,6 +34,7 @@ class Ball extends Sphere
 
     setRandomDirection(paddle_left, paddle_right)
     {
+
         this.object.position.copy(this.beginPosition);
 
         var angle = Math.random() + (Math.PI - Constants.BallEnvironment.MaxBeginAngle) / 2;

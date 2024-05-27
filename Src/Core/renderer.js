@@ -1,3 +1,4 @@
+import { OrbitControls } from '../../Requirments/OrbitControls.js';
 import * as THREE from '../../Requirments/three.module.js';
 
 var renderer;
@@ -10,9 +11,14 @@ function createRenderer()
     document.body.appendChild(renderer.domElement);
 }
 
+function createOrbitControls(camera)
+{
+    new OrbitControls(camera, renderer.domElement);
+}
+
 function render(scene, camera)
 {
     renderer.render(scene, camera);
 }
 
-export {render, createRenderer};
+export {render, createRenderer, createOrbitControls};

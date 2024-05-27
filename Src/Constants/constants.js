@@ -7,7 +7,11 @@ const Keys = {
     W: 32,
     S: 64,
     A: 128,
-    D: 256
+    D: 256,
+    J: 512,
+    K: 1024,
+    One: 2048,
+    Two: 4096,
 };
 
 const PitchEnvironment = {
@@ -19,6 +23,13 @@ const PitchEnvironment = {
     DefaultDepth: 20,
     DefaultThickness: 1,
 };
+
+const ControllerCombinations = [
+    [Keys.Left, Keys.Right],
+    [Keys.A, Keys.D],
+    [Keys.J, Keys.K],
+    [Keys.One, Keys.Two],
+];
 
 const PaddleEnvironment = {
     WidthRateByPitch: 0.08,
@@ -81,16 +92,36 @@ const Identity = {
     none: 0,
     server: 1,
     onlineClient: 2,
-    offlineClient: 3
+    singleOfflineClient: 3,
+    multiOfflineClient: 5,
 };
 
 const GameModePlayerCount = {
     OnlineMultiplayer: 4,
-    SinglePlayer: 1,
+    SinglePlayer: 8,
     OfflineMultiPlayer: 4,
+    OnlineDuoPlayer: 2,
 };
 
-const maxScore = 3;
+const CameraEnvironment = {
+    ShakeIntensity: 0.1,
+    ShakeDuration: 0.5,
+};
+
+const CameraTypes = {
+    Stage: 1,
+    Pitch: 2,
+    All: 3,
+};
+
+const GameModes =
+{
+    MultiPlayer: 1,
+    OfflinePlayer: 2,
+    OnlinePlayer: 3,
+};
+
+const maxScore = 1;
 
 export {
     Keys,
@@ -98,6 +129,8 @@ export {
     PaddleEnvironment,
     LightEnvironment,
     StageEnvironment,
+    CameraEnvironment,
+    CameraTypes,
     Destinations,
     BallEnvironment,
     maxScore,
@@ -105,5 +138,7 @@ export {
     Side,
     Identity,
     controllerTypes,
-    GameModePlayerCount
+    GameModePlayerCount,
+    GameModes,
+    ControllerCombinations,
 };

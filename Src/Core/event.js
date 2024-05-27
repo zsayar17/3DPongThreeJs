@@ -34,6 +34,18 @@ function onİnputKeyDown(event)
         case 68:
             key_state |= Constants.Keys.D;
             break;
+        case 74:
+            key_state |= Constants.Keys.J;
+            break;
+        case 75:
+            key_state |= Constants.Keys.K;
+            break;
+        case 49:
+            key_state |= Constants.Keys.One;
+            break;
+        case 50:
+            key_state |= Constants.Keys.Two;
+            break;
     }
 }
 
@@ -67,6 +79,18 @@ function onInputKeyUp(event)
             break;
         case 68:
             key_state &= ~Constants.Keys.D;
+            break;
+        case 74:
+            key_state &= ~Constants.Keys.J;
+            break;
+        case 75:
+            key_state &= ~Constants.Keys.K;
+            break;
+        case 49:
+            key_state &= ~Constants.Keys.One;
+            break;
+        case 50:
+            key_state &= ~Constants.Keys.Two;
             break;
     }
 }

@@ -5,11 +5,13 @@ import { BaseController } from './baseController.js';
 class RegularController extends BaseController
 {
 
-    constructor()
+    constructor(keyLeft, keyRight)
     {
         super();
 
         this.controllerType = Constants.controllerTypes.RegularController;
+        this.keyLeft = keyLeft;
+        this.keyRight = keyRight;
     }
 
     controlPaddle(pitch)
@@ -17,9 +19,9 @@ class RegularController extends BaseController
         var direction = 1;
 
         direction = pitch.side == Constants.Side.Left ? 1 : -1;
-        if (Event.isKeyPress(Constants.Keys.Left))
+        if (Event.isKeyPress(this.keyLeft))
             return 1 * direction;
-        if (Event.isKeyPress(Constants.Keys.Right))
+        if (Event.isKeyPress(this.keyRight))
             return -1 * direction;
     }
 }

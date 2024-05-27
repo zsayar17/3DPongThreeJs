@@ -1,6 +1,5 @@
 import { Stage } from './stage.js'
 import { Pitch } from './pitch.js'
-import * as Event from '../Core/event.js'
 
 import * as THREE from '../../../Requirments/three.module.js';
 import * as Constants from '../Constants/constants.js'
@@ -21,15 +20,19 @@ class GameArea
         this.situaiton = Constants.Destinations.InBegin;
         this.pitches = [];
         this.winnerPitches = [];
-        this.allowedCameras = [];
+
+        this.wideCamera = null;
         this.currentCamera = 0;
 
         this.gameWinner = null;
 
         this.createStages(stageCount);
-        this.createPitches(stageCount * 2);
-        this.bindStages();
         this.createCameras();
+
+        this.createPitches(stageCount * 2);
+        this.createControllers();
+        this.bindStages();
+
     }
 
     createStages(stageCount)
@@ -45,7 +48,6 @@ class GameArea
 
     createPitches(pitchCount)
     {
-        var controllers = [];
         var angle = 0;
         var positions = {x: 0, y: 0};
 
@@ -57,22 +59,41 @@ class GameArea
             angle = -i * Math.PI * 2 / pitchCount;
             positions = Utilis.rotatePoint(-distance, 0, angle);
             this.pitches.push(new Pitch(-angle, new THREE.Vector3(positions.x, 0, positions.y)));
+            this.pitches[i].setAllowedCameras(this, true);
         }
 
-        for (var i = 0; i < this.pitches.length; i++) controllers.push(new RemoteController(this.pitches[i]));
+        for (var i = 0; i < this.pitches.length; i++) this.winnerPitches.push(this.pitches[i]);
+    }
+
+    createControllers()
+    {
+        var controllers = [];
+
+        if (Identity.getIdentity() == Constants.Identity.singleOfflineClient)
+        {
+            controllers.push(new RegularController(Constants.ControllerCombinations[0][0], Constants.ControllerCombinations[0][1]));
+            for (var i = 1; i < this.pitches.length; i++) controllers.push(new AIController());
+        }
+        else if (Identity.getIdentity() == Constants.Identity.server)
+        {
+            for (var i = 0; i < this.pitches.length; i++) controllers.push(new RemoteController());
+        }
+        else if (Identity.getIdentity() == Constants.Identity.multiOfflineClient)
+        {
+            for (var i = 0; i < this.pitches.length; i++) controllers.push(new RegularController(Constants.ControllerCombinations[i][0], Constants.ControllerCombinations[i][1]));
+        }
 
         for (var i = 0; i < this.pitches.length; i++) this.pitches[i].bindController(controllers[i]);
-        for (var i = 0; i < this.pitches.length; i++) this.winnerPitches.push(this.pitches[i]);
     }
 
     createCameras()
     {
         var distance = (Math.abs(this.stages[this.stages.length - 1].position.z) + Constants.PitchEnvironment.DefaultWidth + Constants.PitchEnvironment.DefaultDepth)
                        / Math.cos(Math.PI / 3);
-        this.allowedCameras.push(Camera.createPerspectiveCamera(new THREE.Vector3(0, distance , 0), new THREE.Vector3(0, 0, 0)));
+        this.wideCamera = Camera.createPerspectiveCamera(Constants.CameraTypes.All, new THREE.Vector3(0, distance , 0), new THREE.Vector3(0, 0, 0));
 
         this.currentCamera = 0;
-        Camera.setCurrentCameraByİndex(this.allowedCameras[this.currentCamera]);
+        Camera.setCurrentCameraByİndex(this.wideCamera);
     }
 
     bindControllerToPitches(controller, pitchIndex)
@@ -89,21 +110,8 @@ class GameArea
     {
         this.situaiton = Constants.Destinations.InStage;
 
-        this.allowedCameras.splice(1, this.allowedCameras.length - 1);
-        for (var i = 0; i < this.winnerPitches.length; i++)
-        {
-            if (!this.isAnyRegularController() && i % 2 == 0)
-            {
-                this.allowedCameras.push(this.winnerPitches[i].controller.allowedCameras[1]);
-            }
-
-            if (this.winnerPitches[i].controller.controllerType != Constants.controllerTypes.RegularController) continue;
-
-            for (var j = 0; j < this.winnerPitches[i].controller.allowedCameras.length; j++)
-                this.allowedCameras.push(this.winnerPitches[i].controller.allowedCameras[j]);
-        }
-
-        if (this.allowedCameras.length > 1) Camera.setCurrentCameraByİndex(this.allowedCameras[1]);
+        Camera.clearAllowedPitchesFromAllCameras();
+        for (var i = 0; i < this.pitches.length; i++) this.pitches[i].setAllowedCameras(this);
     }
 
     setDivorcedPitches()
@@ -149,10 +157,14 @@ class GameArea
         for (var i = 0; i < this.stages.length; i++) this.stages[i].aimPitches(this.situaiton);
 
 
-        this.allowedCameras.splice(1, this.allowedCameras.length - 1);
-        this.currentCamera = 0;
-        Camera.setCurrentCameraByİndex(this.allowedCameras[this.currentCamera]);
-        if (this.winnerPitches.length == 1) this.gameWinner = this.winnerPitches[0];
+        if (this.winnerPitches.length == 1)
+        {
+            this.gameWinner = this.winnerPitches[0];
+            return;
+        }
+
+        Camera.clearAllowedPitchesFromAllCameras();
+        for (var i = 0; i < this.pitches.length; i++) this.pitches[i].setAllowedCameras(this, true);
     }
 
     getEliminatedPitchesIndexes()
@@ -205,22 +217,36 @@ class GameArea
         }
     }
 
+    getAvailableCameras()
+    {
+        var availableCameras = [];
+
+        for (var i = 0; i < this.stages.length; i++)
+        {
+            for (var j = 0; j < this.stages[i].cameras.length; j++)
+                availableCameras.push(this.stages[i].cameras[j]);
+        }
+
+        availableCameras.push(this.wideCamera);
+        return availableCameras;
+    }
+
     readyToPlay()
     {
         for (var i = 0; i < this.stages.length; i++)
             if (!this.stages[i].readyToPlay) return false;
-        return true;
+        return this.gameWinner == null;
     }
 
     playGame()
     {
         if (this.gameWinner == null && this.situaiton == Constants.Destinations.InBegin) this.bindStages();
+
         if (!this.readyToPlay()) return;
 
         for (var i = 0; i < this.stages.length; i++) this.stages[i].playGame();
 
-        if (Event.catchMouseClick() && this.situaiton == Constants.Destinations.InStage)
-            Camera.setCurrentCameraByİndex(this.allowedCameras[++this.currentCamera % this.allowedCameras.length]);
+        for (var i = 0; i < this.pitches.length; i++) this.pitches[i].changeCamera();
 
         for (var i = 0; i < this.stages.length; i++)
             if (this.stages[i].stageWinner == null) return;
@@ -244,6 +270,7 @@ class GameArea
 
         for (var i = 0; i < this.pitches.length; i++) this.pitches[i].setInfos();
         for (var i = 0; i < this.stages.length; i++) this.stages[i].setInfos();
+        Camera.setCameraInfos();
 
         Identity.sendInfos();
     }

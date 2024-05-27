@@ -49,13 +49,13 @@ class Stage
         var camera_position = this.position.clone();
 
         camera_position.y += Math.max(Constants.PitchEnvironment.DefaultWidth, Constants.PitchEnvironment.DefaultDepth) * 2;
-        this.cameras.push(Camera.createPerspectiveCamera(camera_position, this.position));
+        this.cameras.push(Camera.createPerspectiveCamera(Constants.CameraTypes.Stage, camera_position, this.position));
 
         camera_position.z += Math.max(Constants.PitchEnvironment.DefaultWidth, Constants.PitchEnvironment.DefaultDepth) * 2;
-        this.cameras.push(Camera.createPerspectiveCamera(camera_position, this.position));
+        this.cameras.push(Camera.createPerspectiveCamera(Constants.CameraTypes.Stage, camera_position, this.position));
 
         camera_position.z -= Math.max(Constants.PitchEnvironment.DefaultWidth, Constants.PitchEnvironment.DefaultDepth) * 4;
-        this.cameras.push(Camera.createPerspectiveCamera(camera_position, this.position));
+        this.cameras.push(Camera.createPerspectiveCamera(Constants.CameraTypes.Stage, camera_position, this.position));
     }
 
     createLight()
@@ -136,7 +136,6 @@ class Stage
 
     triggerShake()
     {
-        console.log(this.cameras.length);
         for (var i = 0; i < this.cameras.length; i++)
             Camera.triggerShakeCamera(i);
         Camera.triggerShakeCamera(this.pitches[Constants.Side.Left].camera);
@@ -181,6 +180,11 @@ class Stage
             this.stageWinner = this.pitches[Constants.Side.Left];
         else if (this.pitches[Constants.Side.Right].score == Constants.maxScore)
             this.stageWinner = this.pitches[Constants.Side.Right];
+
+        if(this.stageWinner != null)
+        {
+            Identity.saveScore(this.stageWinner.id, this.pitches[(this.stageWinner.side + 1) % 2].id, this.stageWinner.score, this.pitches[(this.stageWinner.side + 1) % 2].score);
+        }
     }
 
     setByServer()
