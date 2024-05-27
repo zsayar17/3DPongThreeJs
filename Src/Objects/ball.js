@@ -4,14 +4,14 @@ import { Sphere } from '../Primitives/sphere.js'
 import * as Constants from '../Constants/constants.js';
 import * as CostumMath from '../Utilis/costumMath.js'
 
-import * as Camera from '../Core/camera.js';
+import * as Identity from '../Identity/Identity.js';
 
 
 var clock = new THREE.Clock();
 
 class Ball extends Sphere
 {
-    constructor (radius, position = new THREE.Vector3(0, 0, 0))
+    constructor (baseStage, radius, position = new THREE.Vector3(0, 0, 0))
     {
         super(radius);
 
@@ -26,6 +26,8 @@ class Ball extends Sphere
         this.dz = 0;
         this.last_touch = null;
         this.last_bounced_wall = null;
+
+        this.baseStage = baseStage;
 
         this.speed = Constants.BallEnvironment.BeginSpeed;
     }
@@ -143,7 +145,29 @@ class Ball extends Sphere
 
     setVisible(visible)
     {
+        if (this.object.visible == visible) return;
+
         this.object.visible = visible;
+    }
+
+    setByServer()
+    {
+        var ballInfo = Identity.fetchBallInfo(this.baseStage.id);
+
+        if (ballInfo == null) return;
+
+        this.object.position.copy(ballInfo.position);
+        this.setVisible(ballInfo.visible);
+        this.object.rotation.copy(ballInfo.rotation);
+    }
+
+    setInfos()
+    {
+        Identity.setBallsInfo({
+            rotation: this.object.rotation,
+            position: this.object.position,
+            visible: this.object.visible
+        });
     }
 }
 

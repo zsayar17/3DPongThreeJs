@@ -8,10 +8,17 @@ import { Box } from '../Primitives/box.js';
 import { Plane } from '../Primitives/plane.js';
 import { Paddle } from '../Objects/paddle.js';
 
+import * as Identity from '../Identity/Identity.js';
+
+var pitchId = 0;
+
 class Pitch
 {
     constructor(yRotation = 0, position = new THREE.Vector3(0, 0, 0))
     {
+        this.id = pitchId++;
+        if (Identity.getIdentity() != Constants.Identity.server) this.id -= Constants.GameModePlayerCount.OfflineMultiPlayer;
+
         this.width = Constants.PitchEnvironment.DefaultWidth;
         this.height = Constants.PitchEnvironment.DefaultHeight;
         this.depth = Constants.PitchEnvironment.DefaultDepth;
@@ -39,6 +46,7 @@ class Pitch
         this.isMoved = false;
         this.isRotated = false;
         this.placed = true;
+        this.destroyed = false;
         this.side = 0;
 
         this.score = 0;
@@ -223,6 +231,7 @@ class Pitch
 
     destroy()
     {
+        this.destroyed = true;
         Scene.removeElementFromScene(this.group);
     }
 
@@ -230,6 +239,39 @@ class Pitch
     {
         this.score = score;
         this.floor.setText(score.toString());
+    }
+
+    setByServer()
+    {
+        if (this.destroyed) return;
+
+        var info = Identity.fetchPitchInfo(this.id);
+
+        if (info == null) return;
+
+        if (info.visibility == false)
+        {
+            this.destroy();
+            return;
+        }
+
+        this.group.position.copy(info.position);
+        this.group.rotation.y = info.yRotation;
+        this.setScore(info.score);
+
+        this.paddle.setByServer();
+    }
+
+    setInfos()
+    {
+        Identity.setPitchesInfo({
+            position: this.group.position,
+            yRotation: this.group.rotation.y,
+            visibility: !this.destroyed,
+            score: this.score
+        });
+
+        this.paddle.setInfos();
     }
 }
 

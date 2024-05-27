@@ -1,7 +1,4 @@
 import * as THREE from '../../Requirments/three.module.js';
-import * as Identity from '../Identity/Identity.js';
-import * as Constants from '../Constants/constants.js';
-
 
 var renderer;
 
@@ -15,8 +12,6 @@ function createRenderer()
 
 function render(scene, camera)
 {
-    if (Identity.getIdentity() == Constants.Identity.server) return;
-
     renderer.render(scene, camera);
 }
 

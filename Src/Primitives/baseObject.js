@@ -39,9 +39,14 @@ class BaseObject
         return vector;
     }
 
-    intersectionByDifferentObject(object)
-    {
+    intersectionByDifferentObject(object) {
         var box1, box2;
+
+        if (this.object.parent) this.object.parent.updateMatrixWorld(true);
+        this.object.updateMatrixWorld(true);
+
+        if (object.object.parent) object.object.parent.updateMatrixWorld(true);
+        object.object.updateMatrixWorld(true);
 
         box1 = new THREE.Box3().setFromObject(this.object);
         box2 = new THREE.Box3().setFromObject(object.object);

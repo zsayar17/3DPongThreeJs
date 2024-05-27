@@ -3,11 +3,12 @@ import * as Renderer from '../../Core/renderer.js'
 import * as Event from '../../Core/event.js'
 import * as Light from '../../Core/light.js'
 import { GameArea } from '../../Stractures/gameArea.js'
-import * as CostumMath from '../../Utilis/costumMath.js'
 
-var id = 0;
+import * as Constants from '../../Constants/constants.js'
+import * as Identity from '../../Identity/Identity.js';
+
+
 var gameArea = null;
-var playerCount = 4;
 
 function setup()
 {
@@ -16,16 +17,16 @@ function setup()
     Event.addEventListeners();
     Light.createAmbientLight();
 
-    gameArea = new GameArea(playerCount / 2);
+    Identity.setIdentity(Constants.Identity.onlineClient);
+    gameArea = new GameArea(Constants.GameModePlayerCount.OnlineMultiplayer / 2);
 }
 
 function update()
 {
     requestAnimationFrame(update);
-    CostumMath.updateDeltaTime();
 
-    gameArea.movePitchesToDestination();
-    gameArea.playGame();
+    Identity.fetchInfos();
+    gameArea.playGameForOnlineClient();
     Scene.renderScene();
 }
 

@@ -84,6 +84,12 @@ const Identity = {
     offlineClient: 3
 };
 
+const GameModePlayerCount = {
+    OnlineMultiplayer: 4,
+    SinglePlayer: 1,
+    OfflineMultiPlayer: 4,
+};
+
 const maxScore = 3;
 
 export {
@@ -98,5 +104,6 @@ export {
     MoveDirection,
     Side,
     Identity,
-    controllerTypes
+    controllerTypes,
+    GameModePlayerCount
 };

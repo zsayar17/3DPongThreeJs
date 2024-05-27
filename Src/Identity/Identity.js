@@ -1,7 +1,11 @@
 import * as Constants from '../Constants/constants.js';
+import * as THREE from '../../Requirments/three.module.js';
 
 var Identity = Constants.Identity.none;
 
+var pitchesInfo = [];
+var paddlesInfo = [];
+var ballsInfo = [];
 
 // Common functions
 function setIdentity(newIdentity)
@@ -14,63 +18,55 @@ function getIdentity()
     return Identity;
 }
 
-// OfflineClient functions
-function sendWinner()
+// onlineClient functions
+function fetchInfos()
 {
-    if (Identity != Constants.Identity.offlineClient) return;
 
-    // send winner to the server from the offline client
 }
 
-// Server functions
-function sendBallPositions()
+function fetchPitchInfo(pitchId)
 {
-    if (Identity != Constants.Identity.server) return;
-
-    // send ball positions to the clients
+    return pitchesInfo[pitchId];
 }
 
-function sendPaddlePositions()
+function fetchPaddleInfo(pitchId)
 {
-    if (Identity != Constants.Identity.server) return;
-
-    // send paddle positions to the clients
+    return paddlesInfo[pitchId];
 }
 
-function sendStartToPlay()
+function fetchBallInfo(stageId)
 {
-    if (Identity != Constants.Identity.server) return;
-
-    // send start to play to the clients
+    return ballsInfo[stageId];
 }
 
-// OnlineClient functions
-function requestToStartGame()
-{
-    if (Identity != Constants.Identity.onlineClient) return;
+// server functions
 
-    // request to start game
+function clearInfos()
+{
+    pitchesInfo = [];
+    paddlesInfo = [];
+    ballsInfo = [];
 }
 
-function requestID()
+function setBallsInfo(newBallInfo)
 {
-    if (Identity != Constants.Identity.onlineClient) return;
-
-    // request id from the server
+    ballsInfo.push(newBallInfo);
 }
 
-function sendReadyToPlay()
+function setPaddlesInfo(newPaddleInfo)
 {
-    if (Identity != Constants.Identity.onlineClient) return;
-
-    // send ready to play to the server
+    paddlesInfo.push(newPaddleInfo);
 }
 
-function sendPaddlePosition()
+function setPitchesInfo(newPitchInfo)
 {
-    if (Identity != Constants.Identity.onlineClient) return;
-
-    // send paddle position to the server
+    pitchesInfo.push(newPitchInfo);
 }
 
-export { setIdentity, getIdentity };
+function sendInfos()
+{
+
+}
+
+
+export { setIdentity, getIdentity, fetchInfos, fetchPitchInfo, fetchPaddleInfo, fetchBallInfo, setBallsInfo, setPaddlesInfo, setPitchesInfo, sendInfos , clearInfos};

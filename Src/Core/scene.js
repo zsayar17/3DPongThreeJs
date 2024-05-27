@@ -9,7 +9,19 @@ var scene;
 function createScene()
 {
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x000000);
+    const loader = new THREE.CubeTextureLoader();
+
+    const texture = loader.load([
+        '../../Textures/SkyBox/posx.jpg', // Pozitif x
+        '../../Textures/SkyBox/negx.jpg', // Negatif x
+        '../../Textures/SkyBox/posy.jpg', // Pozitif y
+        '../../Textures/SkyBox/negy.jpg', // Negatif y
+        '../../Textures/SkyBox/posz.jpg', // Pozitif z
+        '../../Textures/SkyBox/negz.jpg'  // Negatif z
+    ]);
+
+
+    scene.background = texture;
 }
 
 function addElementToScene(element)
@@ -21,11 +33,15 @@ function addElementToScene(element)
 
 function removeElementFromScene(element)
 {
+    if (Identity.getIdentity() == Constants.Identity.server) return;
+
     scene.remove(element);
 }
 
 function renderScene()
 {
+    if (Identity.getIdentity() == Constants.Identity.server) return;
+
     Renderer.render(scene, Camera.getCurrentCamera());
 }
 

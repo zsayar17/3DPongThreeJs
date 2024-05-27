@@ -4,6 +4,8 @@ import * as Constants from '../Constants/constants.js'
 import { Box } from '../Primitives/box.js'
 import * as CostumMath from '../Utilis/costumMath.js'
 
+import * as Identity from '../Identity/Identity.js';
+
 class Paddle extends Box
 {
     constructor(basePitch, size)
@@ -41,6 +43,18 @@ class Paddle extends Box
 
         if (this.intersectionByDifferentObject(this.basePitch.walls[0]) || this.intersectionByDifferentObject(this.basePitch.walls[1]))
             this.position.copy(oldPosition);
+    }
+
+    setByServer()
+    {
+        this.object.position.copy(Identity.fetchPaddleInfo(this.basePitch.id).position);
+    }
+
+    setInfos()
+    {
+        Identity.setPaddlesInfo({
+            position: this.object.position
+        });
     }
 }
 

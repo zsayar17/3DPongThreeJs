@@ -11,14 +11,13 @@ class Camera
         this.isDisplayeble = true;
 
         this.shakeDuration = 0.5;
-        this.shakeIntensity = 0.3;
+        this.shakeIntensity = 0.1;
         this.shakeStartTime = null;
         this.originalPosition = new THREE.Vector3();
         this.shaking = false;
 
         this.camera.position.set(position.x, position.y, position.z);
         if (target != null) this.camera.lookAt(target);
-
     }
 
     addObjectToGroup(group)

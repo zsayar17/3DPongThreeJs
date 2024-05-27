@@ -8,7 +8,6 @@ import * as CostumMath from '../../Utilis/costumMath.js'
 import * as Constant from '../../Constants/constants.js'
 import * as Identity from '../../Identity/Identity.js'
 
-var playerCount = 32;
 var gameArea = null;
 
 function setup()
@@ -20,7 +19,7 @@ function setup()
     Event.addEventListeners();
     Light.createAmbientLight();
 
-    gameArea = new GameArea(4);
+    gameArea = new GameArea(Constant.GameModePlayerCount.OfflineMultiPlayer / 2);
 }
 
 function update()

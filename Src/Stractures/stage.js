@@ -7,6 +7,10 @@ import * as Constants from '../Constants/constants.js'
 
 import * as THREE from '../../Requirments/three.module.js';
 
+import * as Identity from '../Identity/Identity.js';
+
+var stageId = 0;
+
 class Stage
 {
     constructor(position)
@@ -29,6 +33,9 @@ class Stage
         this.light = null;
 
         this.cameras = [];
+
+        this.id = stageId++;
+        if (Identity.getIdentity() != Constants.Identity.server) this.id -= Constants.GameModePlayerCount.OfflineMultiPlayer / 2;
 
         this.target = 0;
 
@@ -65,7 +72,7 @@ class Stage
 
         ball_position.y += Constants.BallEnvironment.Radius * 2;
 
-        this.ball = new Ball(Constants.BallEnvironment.Radius, ball_position);
+        this.ball = new Ball(this, Constants.BallEnvironment.Radius, ball_position);
         this.ball.addToScene();
     }
 
@@ -174,6 +181,16 @@ class Stage
             this.stageWinner = this.pitches[Constants.Side.Left];
         else if (this.pitches[Constants.Side.Right].score == Constants.maxScore)
             this.stageWinner = this.pitches[Constants.Side.Right];
+    }
+
+    setByServer()
+    {
+        this.ball.setByServer();
+    }
+
+    setInfos()
+    {
+        this.ball.setInfos();
     }
 }
 

@@ -6,9 +6,11 @@ import * as THREE from '../../../Requirments/three.module.js';
 import * as Constants from '../Constants/constants.js'
 import { AIController } from '../Controllers/aiController.js';
 import { RegularController } from '../Controllers/regularController.js';
+import { RemoteController } from '../Controllers/remoteController.js';
 import * as Camera from '../Core/camera.js';
 
 import * as Utilis from '../Utilis/costumMath.js';
+import * as Identity from '../Identity/Identity.js'
 
 class GameArea
 {
@@ -57,8 +59,7 @@ class GameArea
             this.pitches.push(new Pitch(-angle, new THREE.Vector3(positions.x, 0, positions.y)));
         }
 
-        controllers.push(new RegularController(this.pitches[0]));
-        for (var i = 1; i < this.pitches.length; i++) controllers.push(new AIController(this.pitches[i]));
+        for (var i = 0; i < this.pitches.length; i++) controllers.push(new RemoteController(this.pitches[i]));
 
         for (var i = 0; i < this.pitches.length; i++) this.pitches[i].bindController(controllers[i]);
         for (var i = 0; i < this.pitches.length; i++) this.winnerPitches.push(this.pitches[i]);
@@ -227,24 +228,24 @@ class GameArea
         if (this.situaiton == Constants.Destinations.InStage) this.divorceStages();
     }
 
-    ballPostions()
+    playGameForOnlineClient()
     {
-        var ballPositions = [];
+        if (Identity.getIdentity() != Constants.Identity.onlineClient) return;
 
-        for (var i = 0; i < this.stages.length; i++)
-            ballPositions.push(this.stages[i].ball.position);
-
-        return ballPositions;
+        for (var i = 0; i < this.pitches.length; i++) this.pitches[i].setByServer();
+        for (var i = 0; i < this.stages.length; i++) this.stages[i].setByServer();
     }
 
-    paddlePositions()
+    setInfos()
     {
-        var paddlePositions = [];
+        if (Identity.getIdentity() != Constants.Identity.server) return;
 
-        for (var i = 0; i < this.pitches.length; i++)
-            paddlePositions.push(this.pitches[i].position);
+        Identity.clearInfos();
 
-        return paddlePositions;
+        for (var i = 0; i < this.pitches.length; i++) this.pitches[i].setInfos();
+        for (var i = 0; i < this.stages.length; i++) this.stages[i].setInfos();
+
+        Identity.sendInfos();
     }
 }
 

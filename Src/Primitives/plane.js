@@ -42,7 +42,7 @@ class Plane extends BaseObject
         context.translate(canvas.width / 2, canvas.height / 2);
         context.rotate(rotateAngle);
 
-        context.fillStyle = 'black';
+        context.fillStyle = 'purple';
         context.font = '64px Arial';
 
         context.textAlign = 'center';
