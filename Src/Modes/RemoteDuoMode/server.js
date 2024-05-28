@@ -5,6 +5,17 @@ import * as Constants from '../../Constants/constants.js'
 import * as Identity from '../../Identity/Identity.js'
 
 var gameArea = null;
+var connectedId = -1;
+
+function acceptConnect()
+{
+    var id = 0;
+
+    if (connectedId == Constants.GameModePlayerCount.OnlineDuoPlayer) return;
+
+    id = Identity.fetchConnectRequest();
+    if (id != -1) gameArea.bindOnlineController(id);
+}
 
 function setup()
 {

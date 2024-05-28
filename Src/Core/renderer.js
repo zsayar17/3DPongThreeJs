@@ -8,6 +8,7 @@ function createRenderer()
     renderer = new THREE.WebGLRenderer( { physicallyCorrectLights:true, antialias: true, antialias: true, powerPreference: "high-performance" });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.shadowMap.enabled = true;
+    renderer.domElement.id = "Game";
     document.body.appendChild(renderer.domElement);
 }
 

@@ -3,11 +3,13 @@ import { Pitch } from './pitch.js'
 
 import * as THREE from '../../../Requirments/three.module.js';
 import * as Constants from '../Constants/constants.js'
+
 import { AIController } from '../Controllers/aiController.js';
 import { RegularController } from '../Controllers/regularController.js';
-import { RemoteController } from '../Controllers/remoteController.js';
-import * as Camera from '../Core/camera.js';
+import { RemoteClientController } from '../Controllers/remoteClientController.js';
+import { RemoteServerController } from '../Controllers/remoteServerController.js';
 
+import * as Camera from '../Core/camera.js';
 import * as Utilis from '../Utilis/costumMath.js';
 import * as Identity from '../Identity/Identity.js'
 
@@ -76,7 +78,7 @@ class GameArea
         }
         else if (Identity.getIdentity() == Constants.Identity.server)
         {
-            for (var i = 0; i < this.pitches.length; i++) controllers.push(new RemoteController());
+            for (var i = 0; i < this.pitches.length; i++) controllers.push(new RemoteServerController());
         }
         else if (Identity.getIdentity() == Constants.Identity.multiOfflineClient)
         {
@@ -84,6 +86,11 @@ class GameArea
         }
 
         for (var i = 0; i < this.pitches.length; i++) this.pitches[i].bindController(controllers[i]);
+    }
+
+    bindOnlineController(pitchId)
+    {
+        this.pitches[pitchId].controller = new RemoteClientController(pitchId);
     }
 
     createCameras()

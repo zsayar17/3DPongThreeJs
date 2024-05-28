@@ -3,7 +3,7 @@ import { BaseController } from './baseController.js';
 
 import * as Event from '../Core/event.js'
 
-class RemoteController extends BaseController
+class RemoteClientController extends BaseController
 {
     constructor()
     {
@@ -15,13 +15,19 @@ class RemoteController extends BaseController
     controlPaddle(pitch)
     {
         var direction = 1;
+        var move = 0;
 
         direction = pitch.side == Constants.Side.Left ? 1 : -1;
         if (Event.isKeyPress(Constants.Keys.Left))
-            return 1 * direction;
+            move = direction;
         if (Event.isKeyPress(Constants.Keys.Right))
-            return -1 * direction;
+            move = -direction;
+
+        if (move != 0)
+        {
+            sendMoveRequest(this.pitch.id, move);
+        }
     }
 }
 
-export { RemoteController };
+export { RemoteClientController };

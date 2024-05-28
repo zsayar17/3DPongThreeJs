@@ -1,5 +1,4 @@
 import * as Constants from '../Constants/constants.js';
-import * as THREE from '../../Requirments/three.module.js';
 
 var Identity = Constants.Identity.none;
 
@@ -50,6 +49,16 @@ function fetchCameraInfo(pitchId)
     return allowedCameras;
 }
 
+function fetchConnectId()
+{
+    return -1;
+}
+
+function sendConnectRequest()
+{
+
+}
+
 // server functions
 
 function clearInfos()
@@ -58,6 +67,11 @@ function clearInfos()
     paddlesInfo = [];
     ballsInfo = [];
     camerasInfo = [];
+}
+
+function fetchConnectRequest()
+{
+
 }
 
 function setBallsInfo(newBallInfo)
@@ -80,7 +94,6 @@ function setCameraInfos(newCameraInfo)
     camerasInfo.push(newCameraInfo);
 }
 
-
 function sendInfos()
 {
 
@@ -92,4 +105,4 @@ function saveScore(winnerPitch, loserPitch, winnerScore, loserScore)
 }
 
 
-export { saveScore, setIdentity, getIdentity, fetchInfos, fetchPitchInfo, fetchPaddleInfo, fetchBallInfo, fetchCameraInfo, setBallsInfo, setPaddlesInfo, setPitchesInfo, setCameraInfos, sendInfos , clearInfos};
+export { saveScore, setIdentity, getIdentity, fetchInfos, fetchPitchInfo, fetchPaddleInfo, fetchBallInfo, fetchCameraInfo, setBallsInfo, setPaddlesInfo, setPitchesInfo, setCameraInfos, sendInfos , clearInfos, sendConnectRequest, fetchConnectRequest };
