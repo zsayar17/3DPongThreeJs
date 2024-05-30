@@ -50,6 +50,7 @@ class Booster extends BaseFeature
         this.boost_paddle.object.material = this.boost_paddle.baseMaterial;
         this.boost_paddle.boostSpeedRate = 1;
         this.boost_paddle = null;
+        this.setVisible(false);
     }
 }
 

@@ -11,6 +11,7 @@ class AIController extends BaseController
         super();
 
         this.aiID = ++aiCounter;
+
         this.controllerType = Constants.controllerTypes.AIController;
     }
 

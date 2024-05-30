@@ -51,6 +51,7 @@ class Freezer extends BaseFeature
         this.timeDuration = 0;
         this.freeze_paddle.object.material = this.freeze_paddle.baseMaterial;
         this.freeze_paddle = null;
+        this.setVisible(false);
     }
 }
 

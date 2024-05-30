@@ -151,8 +151,6 @@ const Colors = [
     'lightblue',
     'lightgreen',
     'lightyellow',
-    'lightpurple',
-    'lightorange',
     'lightcyan',
     'lightpink',
     'lightbrown',
