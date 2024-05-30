@@ -18,7 +18,7 @@ const Keys = {
 
 const PitchEnvironment = {
     RotateSpeed: Math.PI / 90,
-    MoveSpeed: 8,
+    MoveSpeed: 2.5,
 
     DefaultWidth: 50,
     DefaultHeight: 6,
@@ -106,8 +106,8 @@ const GameModePlayerCount = {
 };
 
 const CameraEnvironment = {
-    ShakeIntensity: 0.1,
-    ShakeDuration: 0.5,
+    ShakeIntensity: 0.25,
+    ShakeDuration: 0.4,
 };
 
 const CameraTypes = {

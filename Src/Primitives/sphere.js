@@ -12,9 +12,9 @@ class Sphere extends BaseObject
         this.material = material == null ? new THREE.MeshStandardMaterial({color: 0x00ff00}) : material;
         this.object = new THREE.Mesh(geometry, this.material);
 
-        this.width = radius;
-        this.height = radius;
-        this.depth = radius;
+        this.width = radius * 2;
+        this.height = radius * 2;
+        this.depth = radius * 2 ;
 
         this.position = this.object.position;
 

@@ -208,7 +208,7 @@ class Pitch
     moveTowardsTarget(target, speed) {
         if (this.isMoved == true) return;
 
-        if (CostumMath.getDeltaTime() == 0) return;
+        if (CostumMath.getDeltaTime() == 0 || CostumMath.getDeltaTime() > 0.5) return;
 
         var newPosition = this.group.position.clone().lerp(target, speed * CostumMath.getDeltaTime());
 
