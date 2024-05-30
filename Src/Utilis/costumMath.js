@@ -16,7 +16,7 @@ document.addEventListener('visibilitychange', () => {
 
 function getDeltaTime()
 {
-    return deltaTime;
+    return deltaTime <= 0.1 ? deltaTime : 0.1;
 }
 
 function updateDeltaTime()
