@@ -1,7 +1,7 @@
 import * as Constants from '../Constants/constants.js';
 
 var key_state;
-var mouse_state;
+var event_state;
 
 function onİnputKeyDown(event)
 {
@@ -47,6 +47,9 @@ function onİnputKeyDown(event)
             key_state |= Constants.Keys.Two;
             break;
     }
+
+    if (event.keyCode == 32)
+        event_state = true;
 }
 
 function onInputKeyUp(event)
@@ -95,17 +98,11 @@ function onInputKeyUp(event)
     }
 }
 
-function onMouseClick(event)
-{
-    mouse_state = true;
-}
 
 function addEventListeners()
 {
     window.addEventListener('keydown', onİnputKeyDown);
     window.addEventListener('keyup', onInputKeyUp);
-    window.addEventListener('click', onMouseClick, false);
-
 }
 
 function isKeyPress(key)
@@ -113,14 +110,19 @@ function isKeyPress(key)
     return key_state & key;
 }
 
-function catchMouseClick()
+function catchSpaceEvent()
 {
-    if (mouse_state)
+    if (event_state)
     {
-        mouse_state = false;
+        event_state = false;
         return true;
     }
     return false;
 }
 
-export {addEventListeners, isKeyPress, catchMouseClick};
+function freeSpaceEvent()
+{
+    event_state = false;
+}
+
+export { addEventListeners, isKeyPress, catchSpaceEvent, freeSpaceEvent };

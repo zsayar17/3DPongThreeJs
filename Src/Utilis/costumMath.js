@@ -8,6 +8,7 @@ document.addEventListener('visibilitychange', () => {
     if (document.hidden) isDocumentHidden = true;
     else
     {
+        deltaTime = 0;
         clock.start();
         isDocumentHidden = false;
     }

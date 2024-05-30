@@ -7,9 +7,9 @@ import { GameArea } from '../../Stractures/gameArea.js'
 import * as Constants from '../../Constants/constants.js'
 import * as Identity from '../../Identity/Identity.js';
 
-
 import * as CostumMath from '../../Utilis/costumMath.js'
 
+var names = [name1, name2, name3, name4];
 
 var gameServer = null;
 
@@ -22,11 +22,12 @@ function setup()
 
     Identity.setIdentity(Constants.Identity.multiOfflineClient);
     gameServer = new GameArea(Constants.GameModePlayerCount.OfflineMultiPlayer / 2);
+    gameServer.setNames(names);
 }
 
 function update()
 {
-    requestAnimationFrame(update);
+    if (!Identity.getDone()) requestAnimationFrame(update);
 
     CostumMath.updateDeltaTime();
     gameServer.movePitchesToDestination();

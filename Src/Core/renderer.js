@@ -1,7 +1,15 @@
 import { OrbitControls } from '../../Requirments/OrbitControls.js';
 import * as THREE from '../../Requirments/three.module.js';
+import * as Camera from './camera.js'
 
 var renderer;
+
+window.addEventListener('resize', function() {
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+
+    Camera.resizeAllCameras();
+});
 
 function createRenderer()
 {
@@ -22,4 +30,10 @@ function render(scene, camera)
     renderer.render(scene, camera);
 }
 
-export {render, createRenderer, createOrbitControls};
+function getDomElement()
+{
+    return renderer.domElement;
+}
+
+
+export {render, createRenderer, createOrbitControls, getDomElement};

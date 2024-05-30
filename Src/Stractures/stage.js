@@ -2,6 +2,8 @@ import * as Lights from '../Core/light.js';
 import * as Camera from '../Core/camera.js';
 
 import { Ball } from '../Objects/ball.js'
+import { Freezer } from '../CostumFeature/freezer.js';
+import { Booster } from '../CostumFeature/booster.js';
 
 import * as Constants from '../Constants/constants.js'
 
@@ -35,11 +37,11 @@ class Stage
         this.cameras = [];
 
         this.id = stageId++;
-        if (Identity.getIdentity() != Constants.Identity.server) this.id -= Constants.GameModePlayerCount.OfflineMultiPlayer / 2;
-
         this.target = 0;
+        this.featureBalls = [];
 
         this.createBall();
+        this.createFeatureBalls();
         this.createLight();
         this.createCameras();
     }
@@ -49,13 +51,13 @@ class Stage
         var camera_position = this.position.clone();
 
         camera_position.y += Math.max(Constants.PitchEnvironment.DefaultWidth, Constants.PitchEnvironment.DefaultDepth) * 2;
-        this.cameras.push(Camera.createPerspectiveCamera(Constants.CameraTypes.Stage, camera_position, this.position));
+        this.cameras.push(Camera.createCamera(Constants.CameraTypes.Stage, camera_position, this.position));
 
         camera_position.z += Math.max(Constants.PitchEnvironment.DefaultWidth, Constants.PitchEnvironment.DefaultDepth) * 2;
-        this.cameras.push(Camera.createPerspectiveCamera(Constants.CameraTypes.Stage, camera_position, this.position));
+        this.cameras.push(Camera.createCamera(Constants.CameraTypes.Stage, camera_position, this.position));
 
         camera_position.z -= Math.max(Constants.PitchEnvironment.DefaultWidth, Constants.PitchEnvironment.DefaultDepth) * 4;
-        this.cameras.push(Camera.createPerspectiveCamera(Constants.CameraTypes.Stage, camera_position, this.position));
+        this.cameras.push(Camera.createCamera(Constants.CameraTypes.Stage, camera_position, this.position));
     }
 
     createLight()
@@ -68,12 +70,42 @@ class Stage
 
     createBall()
     {
-        var ball_position = this.position.clone();
+        var ball_position = new THREE.Vector3();
 
-        ball_position.y += Constants.BallEnvironment.Radius * 2;
+        ball_position.copy(this.position);
+        ball_position.y += Constants.BallEnvironment.Radius;
 
         this.ball = new Ball(this, Constants.BallEnvironment.Radius, ball_position);
         this.ball.addToScene();
+    }
+
+    createFeatureBalls()
+    {
+        if (Identity.getSupportCostumMatch() == false) return;
+
+        var ball_position = new THREE.Vector3();
+        var ball;
+
+        ball_position.copy(this.position);
+        ball_position.y += Constants.BallEnvironment.Radius;
+        ball = new Freezer(this, Constants.BallEnvironment.Radius, ball_position);
+        this.featureBalls.push(ball);
+        ball.addToScene();
+
+        ball_position.copy(ball_position);
+        ball = new Booster(this, Constants.BallEnvironment.Radius, ball_position);
+        this.featureBalls.push(ball);
+        ball.addToScene();
+    }
+
+    clearFeatures()
+    {
+        if (Identity.getSupportCostumMatch() == false) return;
+
+        if (!this.featureBalls[Constants.FeatureAttributes.Freezer].isClear())
+            this.featureBalls[Constants.FeatureAttributes.Freezer].clearFeature();
+        if (!this.featureBalls[Constants.FeatureAttributes.Booster].isClear())
+            this.featureBalls[Constants.FeatureAttributes.Booster].clearFeature();;
     }
 
     bindPitches(left_pitch, right_pitch)
@@ -101,6 +133,8 @@ class Stage
 
         this.readyToPlay = false;
         this.stageWinner = null;
+
+        this.clearFeatures();
     }
 
     aimPitches(destination)
@@ -164,8 +198,49 @@ class Stage
 
     moveBall()
     {
+        var prevLastTouch = this.ball.last_touch;
+
         this.ball.move();
-        this.ball.ballCollisionWithStage(this);
+        this.ball.ballCollisionWithStage();
+
+
+        // Feature Balls
+        if (Identity.getSupportCostumMatch() == false) return;
+
+        if (prevLastTouch != null && prevLastTouch != this.ball.last_touch
+                && this.getCurrentFeatureBall() == null && this.getActiveFeatureBall() == null)
+        {
+            if (Math.random() <= Constants.FeatureAttributes.featurePossibility)
+            {
+                if (Math.random() < Constants.FeatureAttributes.freezePossibility)
+                    this.featureBalls[Constants.FeatureAttributes.Freezer].setActive(true);
+                else
+                    this.featureBalls[Constants.FeatureAttributes.Booster].setActive(true);
+            }
+        }
+
+        this.featureBalls[Constants.FeatureAttributes.Freezer].ballCollisionWithStage();
+        this.featureBalls[Constants.FeatureAttributes.Booster].ballCollisionWithStage();
+
+        this.featureBalls[Constants.FeatureAttributes.Freezer].move();
+        this.featureBalls[Constants.FeatureAttributes.Booster].move();
+
+        this.featureBalls[Constants.FeatureAttributes.Freezer].checkFeature();
+        this.featureBalls[Constants.FeatureAttributes.Booster].checkFeature();
+    }
+
+    getCurrentFeatureBall()
+    {
+        for (var i = 0; i < this.featureBalls.length; i++)
+            if (!this.featureBalls[i].isClear()) return this.featureBalls[i];
+        return null;
+    }
+
+    getActiveFeatureBall()
+    {
+        for (var i = 0; i < this.featureBalls.length; i++)
+            if (this.featureBalls[i].isActived()) return this.featureBalls[i];
+        return null;
     }
 
     playGame()
@@ -183,7 +258,8 @@ class Stage
 
         if(this.stageWinner != null)
         {
-            Identity.saveScore(this.stageWinner.id, this.pitches[(this.stageWinner.side + 1) % 2].id, this.stageWinner.score, this.pitches[(this.stageWinner.side + 1) % 2].score);
+            this.clearFeatures();
+            Identity.saveScore(this.stageWinner, this.pitches[(this.stageWinner.side + 1) % 2], this.stageWinner.score, this.pitches[(this.stageWinner.side + 1) % 2].score);
         }
     }
 

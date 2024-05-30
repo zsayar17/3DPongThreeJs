@@ -21,6 +21,24 @@ class Sphere extends BaseObject
         //this.addToScene();
         this.shadowEnable();
     }
+
+    intersectionByDifferentObject(box) {
+        box.object.updateMatrixWorld(true);
+        this.object.updateMatrixWorld(true);
+
+        box.object.updateMatrix();
+        this.object.updateMatrix();
+
+        const sphere = this.object;
+        const box3 = new THREE.Box3().setFromObject(box.object);
+
+        const sphereBox = new THREE.Box3().setFromCenterAndSize(
+            sphere.position,
+            new THREE.Vector3(this.width, this.height, this.depth)
+        );
+
+        return sphereBox.intersectsBox(box3);
+    }
 }
 
 export { Sphere };

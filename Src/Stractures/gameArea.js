@@ -13,6 +13,8 @@ import * as Camera from '../Core/camera.js';
 import * as Utilis from '../Utilis/costumMath.js';
 import * as Identity from '../Identity/Identity.js'
 
+import * as Events from '../Core/event.js';
+
 class GameArea
 {
     constructor(stageCount)
@@ -43,7 +45,7 @@ class GameArea
 
         for (var i = 0; i < stageCount; i++)
         {
-            this.stages.push(new Stage(new THREE.Vector3(0, 20, beginZ)));
+            this.stages.push(new Stage(new THREE.Vector3(0, 0, beginZ)));
             beginZ -= Constants.StageEnvironment.DistanceBetweenStages;
         }
     }
@@ -60,7 +62,7 @@ class GameArea
         {
             angle = -i * Math.PI * 2 / pitchCount;
             positions = Utilis.rotatePoint(-distance, 0, angle);
-            this.pitches.push(new Pitch(-angle, new THREE.Vector3(positions.x, 0, positions.y)));
+            this.pitches.push(new Pitch(-angle, new THREE.Vector3(positions.x, -20, positions.y)));
             this.pitches[i].setAllowedCameras(this, true);
         }
 
@@ -84,8 +86,18 @@ class GameArea
         {
             for (var i = 0; i < this.pitches.length; i++) controllers.push(new RegularController(Constants.ControllerCombinations[i][0], Constants.ControllerCombinations[i][1]));
         }
+        else if (Identity.getIdentity() == Constants.Identity.onlineClient)
+        {
+            for (var i = 0; i < this.pitches.length; i++) controllers.push(new RemoteClientController());
+        }
+
 
         for (var i = 0; i < this.pitches.length; i++) this.pitches[i].bindController(controllers[i]);
+    }
+
+    setNames(names)
+    {
+        for (var i = 0; i < names.length; i++) this.pitches[i].setNameManuel(names[i]);
     }
 
     bindOnlineController(pitchId)
@@ -97,7 +109,7 @@ class GameArea
     {
         var distance = (Math.abs(this.stages[this.stages.length - 1].position.z) + Constants.PitchEnvironment.DefaultWidth + Constants.PitchEnvironment.DefaultDepth)
                        / Math.cos(Math.PI / 3);
-        this.wideCamera = Camera.createPerspectiveCamera(Constants.CameraTypes.All, new THREE.Vector3(0, distance , 0), new THREE.Vector3(0, 0, 0));
+        this.wideCamera = Camera.createCamera(Constants.CameraTypes.All, new THREE.Vector3(0, distance , 0), new THREE.Vector3(0, 0, 0), true);
 
         this.currentCamera = 0;
         Camera.setCurrentCameraByİndex(this.wideCamera);
@@ -116,6 +128,7 @@ class GameArea
     setBindedPitches()
     {
         this.situaiton = Constants.Destinations.InStage;
+        Events.freeSpaceEvent();
 
         Camera.clearAllowedPitchesFromAllCameras();
         for (var i = 0; i < this.pitches.length; i++) this.pitches[i].setAllowedCameras(this);
@@ -161,12 +174,17 @@ class GameArea
     {
         this.situaiton = Constants.Destinations.ToBegin;
 
-        for (var i = 0; i < this.stages.length; i++) this.stages[i].aimPitches(this.situaiton);
+        for (var i = 0; i < this.stages.length; i++)
+        {
+            this.stages[i].clearFeatures();
+            this.stages[i].aimPitches(this.situaiton);
+        }
 
 
         if (this.winnerPitches.length == 1)
         {
             this.gameWinner = this.winnerPitches[0];
+            Identity.setDone(true);
             return;
         }
 

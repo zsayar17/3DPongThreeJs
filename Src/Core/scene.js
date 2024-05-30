@@ -8,6 +8,8 @@ var scene;
 
 function createScene()
 {
+    if (Identity.getIdentity() == Constants.Identity.server) return;
+
     scene = new THREE.Scene();
     const loader = new THREE.CubeTextureLoader();
 
@@ -19,7 +21,6 @@ function createScene()
         '../../Textures/SkyBox/posz.jpg', // Pozitif z
         '../../Textures/SkyBox/negz.jpg'  // Negatif z
     ]);
-
 
     scene.background = texture;
 }
@@ -45,4 +46,4 @@ function renderScene()
     Renderer.render(scene, Camera.getCurrentCamera());
 }
 
-export {createScene, addElementToScene, removeElementFromScene, renderScene};
+export {createScene, addElementToScene, removeElementFromScene, renderScene };

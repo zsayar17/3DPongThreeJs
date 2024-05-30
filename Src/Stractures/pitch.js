@@ -3,22 +3,26 @@ import * as Constants from '../Constants/constants.js';
 
 import * as Scene from '../Core/scene.js';
 import * as Camera from '../Core/camera.js';
+import * as Light from '../Core/light.js';
 
 import { Box } from '../Primitives/box.js';
 import { Plane } from '../Primitives/plane.js';
 import { Paddle } from '../Objects/paddle.js';
 
 import * as Identity from '../Identity/Identity.js';
-
 import * as Events from '../Core/event.js';
+import * as CostumMath from '../Utilis/costumMath.js'
 
 var pitchId = 0;
+
+var textureName = 'Paving/paving';
 
 class Pitch
 {
     constructor(yRotation = 0, position = new THREE.Vector3(0, 0, 0))
     {
         this.id = pitchId++;
+        this.name = '';
 
         this.width = Constants.PitchEnvironment.DefaultWidth;
         this.height = Constants.PitchEnvironment.DefaultHeight;
@@ -38,6 +42,7 @@ class Pitch
         this.floor = null;
         this.paddle = null;
         this.camera = null;
+        this.Light = null;
 
         this.currentCamera = 0;
         this.allowedCameras = [];
@@ -59,17 +64,20 @@ class Pitch
 
         this.createGroup();
 
-        this.createWalls();
         this.createFloor();
+        this.createWalls();
         this.createGoal();
         this.createPaddle();
         this.createCamera();
+        //this.createLight();
+
+        this.setScore(this.score);
     }
 
     createWalls()
     {
-        this.walls.push(new Box(this.width, this.height, this.thickness));
-        this.walls.push(new Box(this.width, this.height, this.thickness));
+        this.walls.push(new Box(this.width, this.height, this.thickness, Constants.Textures.Wall));
+        this.walls.push(new Box(this.width, this.height, this.thickness, Constants.Textures.Wall));
 
         this.walls[0].position.set(0, this.height / 2, (this.depth + this.thickness) / 2 );
         this.walls[1].position.set(0, this.height / 2, -(this.depth + this.thickness) / 2);
@@ -87,7 +95,9 @@ class Pitch
 
     createGoal()
     {
-        this.goal = new Box(this.thickness, this.height,  2 * this.thickness + this.depth);
+        this.goal = new Box(2 * this.thickness + this.depth, this.height, this.thickness, Constants.Textures.Wall);
+
+        this.goal.object.rotateY(Math.PI / 2);
         this.goal.position.set(- (this.width + this.thickness) / 2, this.height / 2, 0);
 
         this.goal.addObjectToGroup(this.group);
@@ -110,7 +120,7 @@ class Pitch
         cameraPosition = new THREE.Vector3(distanceX, distanceY, 0);
         cameraTarget = new THREE.Vector3(0, 0, 0);
 
-        this.camera = Camera.createPerspectiveCamera(Constants.CameraTypes.Pitch, cameraPosition, cameraTarget);
+        this.camera = Camera.createCamera(Constants.CameraTypes.Pitch, cameraPosition, cameraTarget);
         Camera.getCameraByIndex(this.camera).addObjectToGroup(this.group);
     }
 
@@ -124,18 +134,44 @@ class Pitch
         Scene.addElementToScene(this.group);
     }
 
+    createLight()
+    {
+        var position = new THREE.Vector3(0, 0, 0);
+
+        position.copy(this.goal.position);
+        position.y += this.height * 4;
+
+        this.Light = new Light.createSpotLight(position, Constants.LightEnvironment.BeginIntensity, this.group);
+
+        this.group.add(this.Light);
+    }
+
     bindToStage(stage, identity, side)
     {
         this.stage = stage;
         this.identityOnStage = identity;
         this.side = side;
 
-        this.floor.setText(this.score.toString());
+        this.setScore(this.score);
     }
 
     bindController(controller)
     {
         this.controller = controller;
+
+        if (Identity.getIdentity() == Constants.Identity.server) return;
+
+        if (this.controller.controllerType == Constants.controllerTypes.AIController)
+            this.name = 'AI ' + this.controller.aiID;
+        else if (this.controller.controllerType == Constants.controllerTypes.RegularController
+                && Identity.getIdentity() != Constants.Identity.multiOfflineClient)
+            this.name = 'You';
+    }
+
+    setNameManuel(name)
+    {
+        this.name = name;
+        this.setScore(this.score);
     }
 
     removeFormStage()
@@ -144,8 +180,7 @@ class Pitch
         this.identityOnStage = null;
         this.side = 0;
 
-        this.score = 0;
-        this.floor.setText('');
+        this.setScore(0);
     }
 
     moveToDestination()
@@ -173,11 +208,13 @@ class Pitch
     moveTowardsTarget(target, speed) {
         if (this.isMoved == true) return;
 
-        var newPosition = this.group.position.clone().lerp(target, speed);
+        if (CostumMath.getDeltaTime() == 0) return;
+
+        var newPosition = this.group.position.clone().lerp(target, speed * CostumMath.getDeltaTime());
 
         this.group.position.copy(newPosition);
 
-        if (newPosition.distanceTo(target) < speed * 2) {
+        if (newPosition.distanceTo(target) <= 0.1) {
             this.isMoved = true;
             this.group.position.copy(target);
         }
@@ -205,7 +242,7 @@ class Pitch
 
         this.group.rotation.y = newRotation;
 
-        if (Math.abs(deltaRotation) < speed * 2) {
+        if (Math.abs(deltaRotation) <= speed) {
             this.isRotated = true;
             this.group.rotation.y = target_rotate_y;
             this.yRotation = target_rotate_y;
@@ -224,6 +261,11 @@ class Pitch
     {
         if (!this.placed || this.controller == null) return;
 
+        if (Identity.getSupportCostumMatch() && this.controller.controllerType == Constants.controllerTypes.AIController)
+        {
+            this.paddle.move(this.controller.controlPaddle(this, this.stage.getActiveFeatureBall()));
+            return;
+        }
         this.paddle.move(this.controller.controlPaddle(this));
     }
 
@@ -241,7 +283,15 @@ class Pitch
     setScore(score)
     {
         this.score = score;
-        this.floor.setText(score.toString());
+        if (Identity.getIdentity() == Constants.Identity.server) return;
+        var text = [];
+
+        text.push(score);
+        text.push(this.name);
+        this.floor.setText(text, Constants.Colors[(this.id % Constants.Colors.length)]);
+
+        if (this.stage != null)
+            this.stage.clearFeatures();
     }
 
     setAllowedCameras(gameArea, singleCameraMode = false)
@@ -297,9 +347,9 @@ class Pitch
     changeCamera()
     {
         if ((Identity.getIdentity() != Constants.Identity.singleOfflineClient && Identity.getIdentity() != Constants.Identity.onlineClient)
-            || this.controller.controllerType == Constants.controllerTypes.AIController) return;
+            || this.controller == null || this.controller.controllerType == Constants.controllerTypes.AIController) return;
 
-        if (Events.catchMouseClick())
+        if (Events.catchSpaceEvent())
         {
             this.currentCamera = (this.currentCamera + 1) % this.allowedCameras.length;
 
@@ -311,17 +361,20 @@ class Pitch
     {
         var cameras = Identity.fetchCameraInfo(this.id);
 
-        this.allowedCameras = cameras;
-
-        if (cameras.length != this.allowedCameras.length)
+        if (cameras != null && cameras.length > 0)
         {
-            this.currentCamera = 0;
-            Camera.setCurrentCameraByİndex(this.allowedCameras[this.currentCamera]);
+            this.allowedCameras = cameras;
+
+            if (cameras.length != this.allowedCameras.length)
+            {
+                this.currentCamera = 0;
+                Camera.setCurrentCameraByİndex(this.allowedCameras[this.currentCamera]);
+            }
+
+            this.changeCamera();
+
+            if (this.destroyed) return;
         }
-
-        this.changeCamera();
-
-        if (this.destroyed) return;
 
         var info = Identity.fetchPitchInfo(this.id);
 

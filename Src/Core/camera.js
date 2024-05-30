@@ -1,34 +1,69 @@
 import * as THREE from '../../Requirments/three.module.js';
 import * as Constants from '../Constants/constants.js';
-
 import * as Identity from '../Identity/Identity.js';
-
 import * as Renderer from './renderer.js';
+import { OrbitControls } from '../../Requirments/OrbitControls.js';
+
 var cameras = [];
 var currentCamera = null;
+var controls = [];
+
 
 class Camera
 {
-    constructor(position, target, cameraType, id)
+    constructor(position, target, cameraType, id, isOrbit = false)
     {
-        this.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        this.cameraType = cameraType;
+        this.id = id;
 
         this.shakeStartTime = null;
         this.originalPosition = new THREE.Vector3();
         this.shaking = false;
-
-        this.id = id;
-        this.cameraType = cameraType;
+        this.beginPosition = position.clone();
 
         this.allowedPitches = [];
+
+        if (!isOrbit) this.createPerspectiveCamera(position, target);
+        else this.createOrbitCamera(position, target);
+    }
+
+    createPerspectiveCamera(position, target)
+    {
+        this.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
 
         this.camera.position.set(position.x, position.y, position.z);
         if (target != null) this.camera.lookAt(target);
     }
 
+    createOrbitCamera(position, target)
+    {
+        this.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+        this.camera.position.set(position.x, position.y, position.z);
+        if (target != null) this.camera.lookAt(target);
+
+        var control = new OrbitControls(this.camera, Renderer.getDomElement());
+
+        control.target = target;
+
+        control.minPolarAngle = 0;
+        control.maxPolarAngle = Math.PI / 9 * 4;
+
+        control.enableZoom = true;
+
+        control.zoomSpeed = 1;
+
+        controls.push(control);
+    }
+
     addObjectToGroup(group)
     {
         group.add(this.camera);
+    }
+
+    backToBeginPosition()
+    {
+        this.camera.position.copy(this.beginPosition);
     }
 
     setInfos()
@@ -41,19 +76,13 @@ class Camera
     }
 }
 
-function createPerspectiveCamera(cameraType, position, target, isOrbit = false)
+function createCamera(cameraType, position, target, isOrbit = false)
 {
-    var camera = new Camera(position, target, cameraType, cameras.length - 1);
-
-    if (isOrbit)
-    {
-        Renderer.createOrbitControls(camera.camera);
-    }
+    var camera = new Camera(position, target, cameraType, cameras.length - 1, isOrbit);
 
     if (currentCamera == null) currentCamera = camera.camera;
 
     cameras.push(camera);
-
 
     return cameras.length - 1;
 }
@@ -66,6 +95,7 @@ function getCameraByIndex(cameraIndex)
 function setCurrentCameraByİndex(cameraIndex)
 {
     currentCamera = cameras[cameraIndex].camera;
+    cameras[cameraIndex].backToBeginPosition();
 }
 
 function clearAllowedPitchesFromAllCameras(cameraIndex)
@@ -134,4 +164,18 @@ function updateShakeCamera(cameraIndex, speedRate) {
     );
 }
 
-export { createPerspectiveCamera, setCurrentCameraByİndex, getCurrentCamera, getCameraByIndex, totalCameraCount, triggerShakeCamera, updateShakeCamera, clearAllowedPitchesFromAllCameras, addAllowedPitchToCamera, getAllCameras, setCameraInfos };
+function resizeAllCameras()
+{
+    for (var i = 0; i < cameras.length; i++)
+    {
+        cameras[i].camera.aspect = window.innerWidth / window.innerHeight;
+        cameras[i].camera.updateProjectionMatrix();
+    }
+}
+
+function updateCameras()
+{
+    for (var i = 0; i < controls.length; i++) controls[i].update();
+}
+
+export { updateCameras, resizeAllCameras, createCamera, setCurrentCameraByİndex, getCurrentCamera, getCameraByIndex, totalCameraCount, triggerShakeCamera, updateShakeCamera, clearAllowedPitchesFromAllCameras, addAllowedPitchToCamera, getAllCameras, setCameraInfos };

@@ -3,23 +3,18 @@ import { Sphere } from '../Primitives/sphere.js'
 
 import * as Constants from '../Constants/constants.js';
 import * as CostumMath from '../Utilis/costumMath.js'
-
 import * as Identity from '../Identity/Identity.js';
-
-
-var clock = new THREE.Clock();
 
 class Ball extends Sphere
 {
     constructor (baseStage, radius, position = new THREE.Vector3(0, 0, 0))
     {
-        super(radius);
+        super(radius, Constants.Textures.Ball);
 
         this.beginPosition = new THREE.Vector3();
+        this.beginRotation = this.object.rotation.clone();
         this.beginPosition.copy(position);
         this.object.position.copy(position);
-
-        this.object.material.color.setHex(0x0f0fff);
 
         this.setVisible(false);
         this.dx = 0;
@@ -36,6 +31,7 @@ class Ball extends Sphere
     {
 
         this.object.position.copy(this.beginPosition);
+        this.object.rotation.copy(this.beginRotation);
 
         var angle = Math.random() + (Math.PI - Constants.BallEnvironment.MaxBeginAngle) / 2;
 
@@ -51,6 +47,15 @@ class Ball extends Sphere
 
     move()
     {
+
+        const direction = new THREE.Vector3(this.dx, 0, this.dz).normalize();
+        const axis = new THREE.Vector3(0, 1, 0).cross(direction).normalize();
+        const angle = CostumMath.getDeltaTime() * this.speed / this.object.geometry.parameters.radius;
+        const quaternion = new THREE.Quaternion().setFromAxisAngle(axis, angle);
+
+        if (axis.length() !== 0 && isFinite(axis.length()) && isFinite(angle))
+            this.object.quaternion.multiplyQuaternions(quaternion, this.object.quaternion);
+
         this.position.x += this.dx * CostumMath.getDeltaTime();
         this.position.z += this.dz * CostumMath.getDeltaTime();
     }
@@ -102,20 +107,20 @@ class Ball extends Sphere
 
     ballCollisionWithElements(walls, paddles, goals)
     {
-        for (var i = 0; i < walls.length; i++)
-        {
-            if (this.intersectionByDifferentObject(walls[i]) && this.last_bounced_wall != walls[i])
-            {
-                this.bounceToWall(walls[i]);
-                return;
-            }
-        }
-
         for (var i = 0; i < paddles.length; i++)
         {
             if (this.intersectionByDifferentObject(paddles[i]))
             {
                 this.bounceToPaddle(paddles[i]);
+                return;
+            }
+        }
+
+        for (var i = 0; i < walls.length; i++)
+        {
+            if (this.intersectionByDifferentObject(walls[i]) && this.last_bounced_wall != walls[i])
+            {
+                this.bounceToWall(walls[i]);
                 return;
             }
         }
@@ -139,9 +144,9 @@ class Ball extends Sphere
         this.ballCollisionWithElements(walls, paddles, goals);
     }
 
-    ballCollisionWithStage(stage)
+    ballCollisionWithStage()
     {
-        this.ballCollisionWithPitches(stage.pitches[Constants.Side.Left], stage.pitches[Constants.Side.Right]);
+        this.ballCollisionWithPitches(this.baseStage.pitches[Constants.Side.Left], this.baseStage.pitches[Constants.Side.Right]);
     }
 
     setVisible(visible)

@@ -7,13 +7,14 @@ import * as Constants from '../../Constants/constants.js'
 import * as Identity from '../../Identity/Identity.js'
 
 var gameArea = null;
-var id = -1;
+var prevId = -1;
 
 function tryConnect()
 {
-    if (id != -1) return;
-
-    id = Identity.fetchConnectId();
+    if (prevId != -1) return;
+    
+    console.log("pitch_id: " + id + " prev_id: " + prevId);
+    prevId = id;
     if (id != -1) gameArea.bindOnlineController(id);
 }
 
@@ -26,8 +27,6 @@ function setup()
 
     Identity.setIdentity(Constants.Identity.onlineClient);
     gameArea = new GameArea(Constants.GameModePlayerCount.OnlineDuoPlayer / 2);
-
-    Identity.sendConnectRequest();
 }
 
 function update()
@@ -35,10 +34,10 @@ function update()
     requestAnimationFrame(update);
 
     tryConnect();
-    if (id == -1) return;
+    if (prevId == -1) return;
 
     Identity.fetchInfos();
-    clientGameArea.playGameForOnlineClient();
+    gameArea.playGameForOnlineClient();
     Scene.renderScene();
 }
 

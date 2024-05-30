@@ -1,3 +1,5 @@
+import * as Materials from '../Core/material.js';
+
 const Keys = {
     Up: 1,
     Down: 2,
@@ -16,12 +18,12 @@ const Keys = {
 
 const PitchEnvironment = {
     RotateSpeed: Math.PI / 90,
-    MoveSpeed: 0.029,
+    MoveSpeed: 8,
 
-    DefaultWidth: 20,
-    DefaultHeight: 1,
-    DefaultDepth: 20,
-    DefaultThickness: 1,
+    DefaultWidth: 50,
+    DefaultHeight: 6,
+    DefaultDepth: 50,
+    DefaultThickness: 4,
 };
 
 const ControllerCombinations = [
@@ -35,9 +37,9 @@ const PaddleEnvironment = {
     WidthRateByPitch: 0.08,
     HeightRateByPitch: 1,
     DepthRateByPitch: 0.3,
-    ThicknessRateByPitch: 1,
+    ThicknessRateByPitch: 0.7,
 
-    MoveSpeed: 20,
+    MoveSpeed: 45,
 
     EmissiveIntensity: 0.7,
 };
@@ -49,7 +51,7 @@ const LightEnvironment = {
     Penumbra: 1,
     Decay: 0.4,
 
-    AmbientIntensity: 1.2,
+    AmbientIntensity: 0.8,
 };
 
 const Destinations = {
@@ -64,9 +66,9 @@ const StageEnvironment = {
 };
 
 const BallEnvironment = {
-    Radius: 0.7,
-    BeginSpeed: 30,
-    MaxSpeed: 80,
+    Radius: 2.4,
+    BeginSpeed: 60,
+    MaxSpeed: 160,
     AccelerationRate: 0.05,
     MaxBounceAngle: Math.PI / 12 * 3,
     MaxBeginAngle: Math.PI / 12 * 4,
@@ -98,7 +100,7 @@ const Identity = {
 
 const GameModePlayerCount = {
     OnlineMultiplayer: 4,
-    SinglePlayer: 8,
+    SinglePlayer: 16,
     OfflineMultiPlayer: 4,
     OnlineDuoPlayer: 2,
 };
@@ -121,7 +123,66 @@ const GameModes =
     OnlinePlayer: 3,
 };
 
-const maxScore = 1;
+const FeatureAttributes = {
+    Freezer: 0,
+    Booster: 1,
+
+    FreezeTime: 2,
+    BoostTime: 10,
+    BoostSpeedRate: 2,
+
+
+    freezePossibility: 0.4,
+    featurePossibility: 0.1
+};
+
+const Colors = [
+    'red',
+    'green',
+    'blue',
+    'cyan',
+    'brown',
+    'black',
+    'purple',
+    'orange',
+    'pink',
+    'yellow',
+    'gray',
+    'lightblue',
+    'lightgreen',
+    'lightyellow',
+    'lightpurple',
+    'lightorange',
+    'lightcyan',
+    'lightpink',
+    'lightbrown',
+    'lightwhite',
+    'lightblack',
+    'lightgray',
+    'darkblue',
+    'darkred',
+    'darkgreen',
+    'darkyellow',
+    'darkpurple',
+    'darkorange',
+    'darkcyan',
+    'darkpink',
+    'darkbrown',
+    'darkwhite',
+    'darkblack',
+    'darkgray',
+    'lightdarkblue',
+    'lightdarkred',
+];
+
+const Textures = {
+    Ball: Materials.createTexturedMaterial('Ball/ball'),
+    Wall: Materials.createTexturedMaterial('Brick/brick', 5, 1),
+    Plane: Materials.crateRegularMaterial(0xffffff),
+    Snow: Materials.createTexturedMaterial('Snow/snow'),
+};
+
+const maxScore = 5;
 
 export {
     Keys,
@@ -141,4 +202,7 @@ export {
     GameModePlayerCount,
     GameModes,
     ControllerCombinations,
+    Colors,
+    Textures,
+    FeatureAttributes,
 };
